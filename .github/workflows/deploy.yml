@@ -1,0 +1,34 @@
+name: Deploy to Byet.Host
+
+# Trigger workflow on push to main branch
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  ftp-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout your GitHub repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Deploy via plain FTP to Byet.Host
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ftpupload.net           # Byet.Host FTP server
+          username: b33_40185301          # replace with your FTP username
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftp                   # force plain FTP
+          port: 21
+          local-dir: ./                   # root of your repository
+          server-dir: /htdocs/rent_and_go/            # target directory on Byet.Host
+          exclude: |
+            **/.git*
+            **/.github*
+            **/node_modules/**
+            **/README.md
+            **/deploy.yml
