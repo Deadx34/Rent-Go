@@ -1,4 +1,9 @@
 <?php
+// Add these lines inside the PHP tag
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 session_start();
 require 'db_connect.php';
 
@@ -113,6 +118,7 @@ $feedbacks = $conn->query($feedbacks_sql);
                         <!-- Ensure this image is in your folder -->
                         <img src="Gemini_Generated_Image_3vfrwe3vfrwe3vfr.jpg" alt="Logo" class="w-full h-full object-contain"/>
                     </div>
+                    <span class="font-extrabold text-2xl tracking-tighter text-gray-900">Rent & Go</span>
                 </a>
                 
                 <!-- Desktop Menu -->
@@ -256,16 +262,28 @@ $feedbacks = $conn->query($feedbacks_sql);
             <?php if ($vehicles->num_rows > 0): ?>
                 <?php while($row = $vehicles->fetch_assoc()): ?>
                     <div class="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col">
-                        <div class="h-56 bg-gray-50 flex items-center justify-center text-gray-300 relative group-hover:bg-blue-50/30 transition-colors duration-300">
-                            <i data-lucide="car" class="w-24 h-24"></i>
+                        
+                        <!-- VEHICLE IMAGE LOGIC START -->
+                        <div class="h-56 bg-gray-50 flex items-center justify-center text-gray-300 relative group-hover:bg-blue-50/30 transition-colors duration-300 overflow-hidden">
+                            <?php if(!empty($row['image_url'])): ?>
+                                <img src="<?php echo htmlspecialchars($row['image_url']); ?>" alt="<?php echo htmlspecialchars($row['model']); ?>" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                            <?php else: ?>
+                                <i data-lucide="car" class="w-24 h-24"></i>
+                            <?php endif; ?>
+                            
                             <div class="absolute top-4 right-4">
                                 <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-green-100 text-green-800">Available</span>
                             </div>
                         </div>
+                        <!-- VEHICLE IMAGE LOGIC END -->
+
                         <div class="p-6 flex-1 flex flex-col">
                             <div class="flex justify-between items-start mb-3">
                                 <div>
                                     <h3 class="text-xl font-bold text-gray-900"><?php echo $row['make'] . ' ' . $row['model']; ?></h3>
+                                    <?php if(!empty($row['vehicle_number'])): ?>
+                                        <p class="text-xs text-gray-500 mt-1"><?php echo htmlspecialchars($row['vehicle_number']); ?></p>
+                                    <?php endif; ?>
                                 </div>
                                 <div class="text-right">
                                     <p class="text-2xl font-bold text-blue-600">$<?php echo $row['price_per_day']; ?></p>
