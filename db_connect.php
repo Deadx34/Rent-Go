@@ -9,4 +9,15 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
-?>
+<?php
+$config = require __DIR__ . '/server_config.php';
+
+$servername = $config['db_host'];
+$username = $config['db_user'];
+$password = $config['db_pass'];
+$dbname = $config['db_name'];
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
