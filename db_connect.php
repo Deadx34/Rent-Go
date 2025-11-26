@@ -1,8 +1,8 @@
 <?php
 $servername = "localhost";
-$username = "root"; // Change this to your cPanel DB username
-$password = "";     // Change this to your cPanel DB password
-$dbname = "rent_and_go"; // Change this to your DB name
+$username = "b33_40185301"; // Change this to your cPanel DB username
+$password = "123456";     // Change this to your cPanel DB password
+$dbname = "b33_40185301_rent_and_go"; // Change this to your DB name
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
