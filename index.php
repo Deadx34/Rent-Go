@@ -116,7 +116,7 @@ $feedbacks = $conn->query($feedbacks_sql);
                 <a href="index.php" class="flex items-center gap-3 hover:opacity-80 transition">
                     <div class="w-10 h-10 bg-white rounded-lg p-1">
                         <!-- Ensure this image is in your folder -->
-                        <img src="Gemini_Generated_Image_3vfrwe3vfrwe3vfr.jpg" alt="Logo" class="w-full h-full object-contain"/>
+                        <img src="./uploads/rent&go_logo.png" alt="Logo" class="w-full h-full object-contain"/>
                     </div>
                     <span class="font-extrabold text-2xl tracking-tighter text-gray-900">Rent & Go</span>
                 </a>
