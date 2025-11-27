@@ -103,7 +103,7 @@ $feedbacks = $conn->query($feedbacks_sql);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rent & Go - Luxury Lifestyle Rentals</title>
+    <title>Hansi Travels - Luxury Lifestyle Rentals</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -153,8 +153,7 @@ $feedbacks = $conn->query($feedbacks_sql);
             <div class="flex justify-between items-center h-24">
                 <!-- Logo -->
                 <a href="index.php" class="flex items-center gap-3 group">
-                    <img src="Gemini_Generated_Image_3vfrwe3vfrwe3vfr.jpg" alt="Logo" class="w-12 h-12 object-contain filter brightness-0 invert group-hover:opacity-80 transition"/>
-                    <span class="font-black text-2xl tracking-widest text-white group-hover:text-gray-300 transition">RENT&GO</span>
+                    <img src="./uploads/rent&go_logo.png" alt="Logo" class="w-12 h-12 object-contain filter brightness-0 invert group-hover:opacity-80 transition"/>
                 </a>
                 
                 <!-- Desktop Menu -->
@@ -300,7 +299,7 @@ $feedbacks = $conn->query($feedbacks_sql);
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                 <div>
                     <h2 class="text-4xl md:text-5xl font-black text-white mb-6 leading-tight">
-                        LUXURY CAR <br/> RENTAL MIAMI
+                        LUXURY CAR RENTAL <br/>Sri Lanka
                     </h2>
                     <p class="text-gray-400 mb-8 leading-relaxed font-light">
                         A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country, in which roasted parts of sentences fly into your mouth.
@@ -340,9 +339,9 @@ $feedbacks = $conn->query($feedbacks_sql);
                     </div>
                     <div class="space-y-6 text-sm text-gray-400">
                         <div>
-                            <p class="text-white font-bold uppercase tracking-widest mb-1">UAE - Dubai</p>
-                            <p>+971 21 658 359</p>
-                            <p>info-cars@gmail.com</p>
+                            <p class="text-white font-bold uppercase tracking-widest mb-1">Colombo-LK</p>
+                            <p>+94712345678</p>
+                            <p>info@hansitravels.com</p>
                         </div>
                         <div class="flex gap-4 pt-4">
                             <a href="#" class="hover:text-white transition"><i data-lucide="instagram" class="w-5 h-5"></i></a>
@@ -373,8 +372,7 @@ $feedbacks = $conn->query($feedbacks_sql);
             </div>
             
             <div class="mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center text-xs text-gray-600">
-                <p>Copyright © 2024 Rent & Go</p>
-                <p>Developed by <span class="text-white">YourName</span></p>
+                <p>Copyright © 2024 Hansi Travels</p>
             </div>
         </div>
     </div>
