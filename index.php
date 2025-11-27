@@ -103,7 +103,7 @@ $feedbacks = $conn->query($feedbacks_sql);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rent & Go - Premium Vehicle Rental</title>
+    <title>Hansi Travels - Premium Vehicle Rental</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -130,7 +130,7 @@ $feedbacks = $conn->query($feedbacks_sql);
                         <!-- Ensure this image is in your folder -->
                         <img src="./uploads/rent&go_logo.png" alt="Logo" class="w-full h-full object-contain"/>
                     </div>
-                    <span class="font-extrabold text-2xl tracking-tighter text-gray-900">Rent & Go</span>
+                    <span class="font-extrabold text-2xl tracking-tighter text-gray-900">Hansi Travels</span>
                 </a>
                 
                 <!-- Desktop Menu -->
@@ -214,10 +214,10 @@ $feedbacks = $conn->query($feedbacks_sql);
             <div class="text-center mb-16">
                 <h2 class="text-base text-blue-600 font-bold tracking-wide uppercase">Who We Are</h2>
                 <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-                    About Rent & Go
+                    About Hansi Travels
                 </p>
                 <p class="mt-4 max-w-2xl text-xl text-gray-500 mx-auto">
-                    Founded in 2024, Rent & Go has revolutionized the car rental industry by combining technology with exceptional customer service. We believe in making mobility accessible, affordable, and hassle-free.
+                    Founded in 2024, Hansi Travels has revolutionized the car rental industry by combining technology with exceptional customer service. We believe in making mobility accessible, affordable, and hassle-free.
                 </p>
             </div>
 
@@ -546,7 +546,7 @@ $feedbacks = $conn->query($feedbacks_sql);
     <!-- Footer -->
     <footer class="bg-gray-900 text-white py-12 mt-12">
         <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="text-gray-500">&copy; 2024 Rent & Go Inc. All rights reserved.</p>
+            <p class="text-gray-500">&copy; 2024 Hansi Travels Inc. All rights reserved.</p>
             <div class="flex justify-center gap-4 mt-4 text-sm text-gray-400">
                 <a href="#" class="hover:text-white">Terms</a>
                 <a href="#" class="hover:text-white">Privacy</a>
