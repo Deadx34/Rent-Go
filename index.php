@@ -299,7 +299,7 @@ $feedbacks = $conn->query($feedbacks_sql);
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                 <div>
                     <h2 class="text-4xl md:text-5xl font-black text-white mb-6 leading-tight">
-                        LUXURY CAR RENTAL <br/>Sri Lanka
+                        LUXURY CAR <br/>RENTAL Sri Lanka
                     </h2>
                     <p class="text-gray-400 mb-8 leading-relaxed font-light">
                         A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country, in which roasted parts of sentences fly into your mouth.
