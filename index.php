@@ -1,9 +1,4 @@
 <?php
-// Add these lines inside the PHP tag
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 session_start();
 require 'db_connect.php';
 
@@ -77,16 +72,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['send_contact'])) {
     $success = "Message sent! We will contact you shortly.";
 }
 
-// Fetch Vehicles
+// --- Filter & Sort Logic ---
+$current_filter = isset($_GET['filter']) ? $_GET['filter'] : 'all';
+$current_sort = isset($_GET['sort']) ? $_GET['sort'] : 'default';
+
 $sql = "SELECT * FROM vehicles WHERE status = 'available'";
-if (isset($_GET['filter']) && $_GET['filter'] != 'all') {
-    $filter = $conn->real_escape_string($_GET['filter']);
-    $sql .= " AND type = '$filter'";
+
+if ($current_filter != 'all') {
+    $filter_safe = $conn->real_escape_string($current_filter);
+    $sql .= " AND type = '$filter_safe'";
 }
-if (isset($_GET['sort'])) {
-    if ($_GET['sort'] == 'asc') $sql .= " ORDER BY price_per_day ASC";
-    if ($_GET['sort'] == 'desc') $sql .= " ORDER BY price_per_day DESC";
+
+if ($current_sort == 'asc') {
+    $sql .= " ORDER BY price_per_day ASC";
+} elseif ($current_sort == 'desc') {
+    $sql .= " ORDER BY price_per_day DESC";
+} else {
+    $sql .= " ORDER BY id DESC"; // Default recommended
 }
+
 $vehicles = $conn->query($sql);
 
 // Fetch Feedbacks
@@ -105,6 +109,14 @@ $feedbacks = $conn->query($feedbacks_sql);
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         html { scroll-behavior: smooth; }
+        /* Hide scrollbar for horizontal scroll areas */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans">
@@ -116,7 +128,7 @@ $feedbacks = $conn->query($feedbacks_sql);
                 <a href="index.php" class="flex items-center gap-3 hover:opacity-80 transition">
                     <div class="w-10 h-10 bg-white rounded-lg p-1">
                         <!-- Ensure this image is in your folder -->
-                        <img src="./uploads/rent&go_logo.png" alt="Logo" class="w-full h-full object-contain"/>
+                        <img src="Gemini_Generated_Image_3vfrwe3vfrwe3vfr.jpg" alt="Logo" class="w-full h-full object-contain"/>
                     </div>
                     <span class="font-extrabold text-2xl tracking-tighter text-gray-900">Rent & Go</span>
                 </a>
@@ -235,26 +247,39 @@ $feedbacks = $conn->query($feedbacks_sql);
 
     <!-- Fleet Section -->
     <div id="fleet" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 pt-12">
-        <div class="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
-            <div class="w-full md:w-auto">
+        <div class="flex flex-col lg:flex-row justify-between items-end mb-10 gap-6">
+            <div class="w-full lg:w-auto">
                 <h2 class="text-3xl font-extrabold text-gray-900">Premium Fleet</h2>
                 <p class="text-gray-500 mt-2 text-lg">Choose from our wide range of vehicles</p>
             </div>
             
-            <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-                <form method="GET" class="flex gap-2">
-                    <select name="sort" onchange="this.form.submit()" class="bg-white border border-gray-200 text-gray-700 py-2.5 px-4 rounded-lg font-semibold cursor-pointer">
-                        <option value="">Sort by Price</option>
-                        <option value="asc" <?php if(isset($_GET['sort']) && $_GET['sort'] == 'asc') echo 'selected'; ?>>Low to High</option>
-                        <option value="desc" <?php if(isset($_GET['sort']) && $_GET['sort'] == 'desc') echo 'selected'; ?>>High to Low</option>
-                    </select>
-                    <select name="filter" onchange="this.form.submit()" class="bg-white border border-gray-200 text-gray-700 py-2.5 px-4 rounded-lg font-semibold cursor-pointer">
-                        <option value="all">All Types</option>
-                        <option value="sedan" <?php if(isset($_GET['filter']) && $_GET['filter'] == 'sedan') echo 'selected'; ?>>Sedan</option>
-                        <option value="suv" <?php if(isset($_GET['filter']) && $_GET['filter'] == 'suv') echo 'selected'; ?>>SUV</option>
-                        <option value="truck" <?php if(isset($_GET['filter']) && $_GET['filter'] == 'truck') echo 'selected'; ?>>Truck</option>
-                    </select>
-                </form>
+            <div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto items-start sm:items-center">
+                
+                <!-- Sort Tabs -->
+                <div class="flex bg-gray-100 p-1 rounded-lg self-start sm:self-auto">
+                    <a href="?filter=<?php echo $current_filter; ?>&sort=default#fleet" class="px-4 py-2 rounded-md text-sm font-medium transition <?php echo $current_sort == 'default' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'; ?>">
+                        Recommended
+                    </a>
+                    <a href="?filter=<?php echo $current_filter; ?>&sort=asc#fleet" class="px-4 py-2 rounded-md text-sm font-medium transition <?php echo $current_sort == 'asc' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'; ?>">
+                        Price ↑
+                    </a>
+                    <a href="?filter=<?php echo $current_filter; ?>&sort=desc#fleet" class="px-4 py-2 rounded-md text-sm font-medium transition <?php echo $current_sort == 'desc' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'; ?>">
+                        Price ↓
+                    </a>
+                </div>
+
+                <!-- Filter Tabs -->
+                <div class="flex bg-gray-100 p-1.5 rounded-xl overflow-x-auto w-full sm:w-auto no-scrollbar">
+                    <?php 
+                    $filters = ['all' => 'All', 'sedan' => 'Sedan', 'suv' => 'SUV', 'truck' => 'Truck', 'motorcycle' => 'Motorcycle'];
+                    foreach ($filters as $key => $label): 
+                    ?>
+                        <a href="?filter=<?php echo $key; ?>&sort=<?php echo $current_sort; ?>#fleet" 
+                           class="px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 whitespace-nowrap <?php echo $current_filter == $key ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'; ?>">
+                            <?php echo $label; ?>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
             </div>
         </div>
 
