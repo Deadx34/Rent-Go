@@ -33,7 +33,7 @@ if (isset($_GET['logout'])) {
     exit();
 }
 
-// Handle Renting (Now triggered after PayPal success)
+// Handle Renting
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirm_rental'])) {
     if (!isset($_SESSION['user_id'])) {
         $error = "Please login first";
@@ -42,8 +42,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirm_rental'])) {
         $start_date = $_POST['start_date'];
         $end_date = $_POST['end_date'];
         $total = $_POST['total_cost'];
-        // Optional: You can capture the PayPal transaction ID here if you added a column for it
-        // $txn_id = $_POST['transaction_id']; 
         
         $stmt = $conn->prepare("INSERT INTO rentals (user_id, vehicle_id, start_date, end_date, total_cost) VALUES (?, ?, ?, ?, ?)");
         $stmt->bind_param("iissd", $_SESSION['user_id'], $vehicle_id, $start_date, $end_date, $total);
@@ -74,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_feedback'])) {
     }
 }
 
-// Handle Contact Form (Simulation)
+// Handle Contact Form
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['send_contact'])) {
     $success = "Message sent! We will contact you shortly.";
 }
@@ -124,16 +122,6 @@ $feedbacks = $conn->query($feedbacks_sql);
             color: #fff;
         }
         
-        .glass-dark {
-            background: rgba(20, 20, 20, 0.8);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .text-glow {
-            text-shadow: 0 0 20px rgba(255,255,255,0.1);
-        }
-
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
@@ -151,6 +139,10 @@ $feedbacks = $conn->query($feedbacks_sql);
         
         .no-scrollbar::-webkit-scrollbar {
             display: none;
+        }
+        
+        .text-glow {
+            text-shadow: 0 0 20px rgba(255,255,255,0.1);
         }
     </style>
 </head>
@@ -199,9 +191,7 @@ $feedbacks = $conn->query($feedbacks_sql);
 
     <!-- Hero Section -->
     <div class="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
-        <!-- Background Image/Overlay -->
         <div class="absolute inset-0 z-0">
-            <!-- Using a dark abstract background if car image not available, replace url with real one -->
             <img src="https://images.unsplash.com/photo-1503376763036-066120622c74?q=80&w=2070&auto=format&fit=crop" class="w-full h-full object-cover opacity-40">
             <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
         </div>
@@ -242,26 +232,47 @@ $feedbacks = $conn->query($feedbacks_sql);
     <!-- Fleet Section (Today's Specials) -->
     <div id="fleet" class="py-24 bg-black relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Header & Filter -->
+            <!-- Header & Tabs -->
             <div class="flex flex-col md:flex-row justify-between items-end mb-16 border-b border-white/10 pb-6">
                 <div>
                     <h2 class="text-3xl md:text-4xl font-bold text-white mb-2 uppercase tracking-wide">Today's Specials</h2>
                     <p class="text-gray-500 text-sm tracking-wider">PREMIUM SELECTION</p>
                 </div>
                 
-                <div class="flex flex-col sm:flex-row gap-6 mt-6 md:mt-0">
-                    <!-- Sort Tabs -->
-                    <div class="flex text-sm font-medium text-gray-400 gap-6">
-                        <a href="?filter=<?php echo $current_filter; ?>&sort=default#fleet" class="<?php echo $current_sort == 'default' ? 'text-white border-b-2 border-white pb-1' : 'hover:text-white transition'; ?>">Recommended</a>
-                        <a href="?filter=<?php echo $current_filter; ?>&sort=asc#fleet" class="<?php echo $current_sort == 'asc' ? 'text-white border-b-2 border-white pb-1' : 'hover:text-white transition'; ?>">Price Low</a>
-                        <a href="?filter=<?php echo $current_filter; ?>&sort=desc#fleet" class="<?php echo $current_sort == 'desc' ? 'text-white border-b-2 border-white pb-1' : 'hover:text-white transition'; ?>">Price High</a>
+                <div class="flex flex-col sm:flex-row gap-8 mt-6 md:mt-0 items-center">
+                    
+                    <!-- Sorting Tabs (Text Links) -->
+                    <div class="flex items-center gap-6 text-xs uppercase tracking-widest font-bold">
+                        <span class="text-gray-600 hidden sm:inline">Sort By:</span>
+                        <a href="?filter=<?php echo $current_filter; ?>&sort=default#fleet" 
+                           class="transition-colors <?php echo $current_sort == 'default' ? 'text-white border-b-2 border-white pb-1' : 'text-gray-500 hover:text-gray-300'; ?>">
+                           Recommended
+                        </a>
+                        <a href="?filter=<?php echo $current_filter; ?>&sort=asc#fleet" 
+                           class="transition-colors <?php echo $current_sort == 'asc' ? 'text-white border-b-2 border-white pb-1' : 'text-gray-500 hover:text-gray-300'; ?>">
+                           Price Low
+                        </a>
+                        <a href="?filter=<?php echo $current_filter; ?>&sort=desc#fleet" 
+                           class="transition-colors <?php echo $current_sort == 'desc' ? 'text-white border-b-2 border-white pb-1' : 'text-gray-500 hover:text-gray-300'; ?>">
+                           Price High
+                        </a>
                     </div>
 
-                    <!-- Type Filters as Button-like Tabs -->
-                    <div class="flex gap-4">
-                        <a href="?filter=all&sort=<?php echo $current_sort; ?>#fleet" class="border border-white/20 px-4 py-1 text-xs uppercase tracking-wider hover:border-white transition <?php echo $current_filter == 'all' ? 'bg-white text-black border-white' : 'text-gray-400'; ?>">View All</a>
-                        <a href="?filter=suv&sort=<?php echo $current_sort; ?>#fleet" class="border border-white/20 px-4 py-1 text-xs uppercase tracking-wider hover:border-white transition <?php echo $current_filter == 'suv' ? 'bg-white text-black border-white' : 'text-gray-400'; ?>">SUV</a>
-                        <a href="?filter=sedan&sort=<?php echo $current_sort; ?>#fleet" class="border border-white/20 px-4 py-1 text-xs uppercase tracking-wider hover:border-white transition <?php echo $current_filter == 'sedan' ? 'bg-white text-black border-white' : 'text-gray-400'; ?>">Sedan</a>
+                    <div class="h-6 w-[1px] bg-white/20 hidden sm:block"></div>
+
+                    <!-- Filter Tabs (Pill Buttons) -->
+                    <div class="flex gap-3 overflow-x-auto w-full sm:w-auto no-scrollbar">
+                        <?php 
+                        $filters = ['all' => 'All', 'sedan' => 'Sedan', 'suv' => 'SUV', 'truck' => 'Truck', 'motorcycle' => 'Moto'];
+                        foreach ($filters as $key => $label): 
+                            $isActive = $current_filter == $key;
+                        ?>
+                            <a href="?filter=<?php echo $key; ?>&sort=<?php echo $current_sort; ?>#fleet" 
+                               class="border border-white/20 px-5 py-2 text-xs font-bold uppercase tracking-widest transition whitespace-nowrap
+                                      <?php echo $isActive ? 'bg-white text-black border-white' : 'text-gray-400 hover:border-white hover:text-white'; ?>">
+                                <?php echo $label; ?>
+                            </a>
+                        <?php endforeach; ?>
                     </div>
                 </div>
             </div>
@@ -283,7 +294,12 @@ $feedbacks = $conn->query($feedbacks_sql);
                                 
                                 <!-- Hover Overlay Button -->
                                 <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300 bg-black/40">
-                                    <button onclick="openRentModal(<?php echo htmlspecialchars(json_encode($row)); ?>)" class="border border-white px-6 py-2 text-xs font-bold tracking-widest bg-white text-black hover:bg-black hover:text-white transition uppercase">
+                                    <button onclick="openRentModal(this)" 
+                                            data-id="<?php echo $row['id']; ?>"
+                                            data-make="<?php echo htmlspecialchars($row['make']); ?>"
+                                            data-model="<?php echo htmlspecialchars($row['model']); ?>"
+                                            data-price="<?php echo $row['price_per_day']; ?>"
+                                            class="border border-white px-6 py-2 text-xs font-bold tracking-widest bg-white text-black hover:bg-black hover:text-white transition uppercase">
                                         Rent Now
                                     </button>
                                 </div>
@@ -293,7 +309,10 @@ $feedbacks = $conn->query($feedbacks_sql);
                             <div class="flex justify-between items-end border-b border-gray-800 pb-4">
                                 <div>
                                     <h3 class="text-xl font-bold text-white mb-1"><?php echo $row['make'] . ' ' . $row['model']; ?></h3>
-                                    <div class="flex text-yellow-500 gap-1 text-xs">
+                                    <?php if(!empty($row['vehicle_number'])): ?>
+                                        <p class="text-xs text-gray-600"><?php echo htmlspecialchars($row['vehicle_number']); ?></p>
+                                    <?php endif; ?>
+                                    <div class="flex text-yellow-500 gap-1 text-xs mt-2">
                                         <i data-lucide="star" class="w-3 h-3 fill-current"></i>
                                         <i data-lucide="star" class="w-3 h-3 fill-current"></i>
                                         <i data-lucide="star" class="w-3 h-3 fill-current"></i>
@@ -461,10 +480,16 @@ $feedbacks = $conn->query($feedbacks_sql);
             modal.classList.toggle('flex');
         }
 
-        function openRentModal(vehicle) {
-            document.getElementById('modalCarName').innerText = vehicle.make + ' ' + vehicle.model;
-            document.getElementById('modalVehicleId').value = vehicle.id;
-            document.getElementById('modalPrice').value = vehicle.price_per_day;
+        function openRentModal(button) {
+            // Using Data Attributes to prevent quote escaping issues
+            const id = button.getAttribute('data-id');
+            const make = button.getAttribute('data-make');
+            const model = button.getAttribute('data-model');
+            const price = button.getAttribute('data-price');
+
+            document.getElementById('modalCarName').innerText = make + ' ' + model;
+            document.getElementById('modalVehicleId').value = id;
+            document.getElementById('modalPrice').value = price;
             
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('startDate').min = today;
