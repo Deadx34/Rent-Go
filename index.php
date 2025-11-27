@@ -334,7 +334,7 @@ $feedbacks = $conn->query($feedbacks_sql);
                 <!-- Brand Info -->
                 <div>
                     <div class="flex items-center gap-3 mb-8">
-                        <img src="Gemini_Generated_Image_3vfrwe3vfrwe3vfr.jpg" alt="Logo" class="w-10 h-10 object-contain filter brightness-0 invert"/>
+                        <img src="D:/uploads/rent&go_logo.png" alt="Logo" class="w-10 h-10 object-contain filter brightness-0 invert"/>
                         <span class="font-black text-2xl tracking-widest text-white">Hansi Travels</span>
                     </div>
                     <div class="space-y-6 text-sm text-gray-400">
