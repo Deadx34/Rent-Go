@@ -103,57 +103,84 @@ $feedbacks = $conn->query($feedbacks_sql);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hansi Travels - Premium Vehicle Rental</title>
+    <title>Rent & Go - Luxury Lifestyle Rentals</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        html { scroll-behavior: smooth; }
-        /* Hide scrollbar for horizontal scroll areas */
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700;900&display=swap');
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #000;
+            color: #fff;
+        }
+        
+        .glass-dark {
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .text-glow {
+            text-shadow: 0 0 20px rgba(255,255,255,0.1);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans">
+<body class="bg-black text-gray-200">
 
     <!-- Navbar -->
-    <nav class="bg-white border-b border-gray-100 sticky top-0 z-40 backdrop-blur-md bg-white/90">
+    <nav class="fixed w-full z-50 transition-all duration-300 bg-black/80 backdrop-blur-md border-b border-white/10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-20 items-center">
-                <a href="index.php" class="flex items-center gap-3 hover:opacity-80 transition">
-                    <div class="w-10 h-10 bg-white rounded-lg p-1">
-                        <!-- Ensure this image is in your folder -->
-                        <img src="./uploads/rent&go_logo.png" alt="Logo" class="w-full h-full object-contain"/>
-                    </div>
+            <div class="flex justify-between items-center h-24">
+                <!-- Logo -->
+                <a href="index.php" class="flex items-center gap-3 group">
+                    <img src="Gemini_Generated_Image_3vfrwe3vfrwe3vfr.jpg" alt="Logo" class="w-12 h-12 object-contain filter brightness-0 invert group-hover:opacity-80 transition"/>
+                    <span class="font-black text-2xl tracking-widest text-white group-hover:text-gray-300 transition">RENT&GO</span>
                 </a>
                 
                 <!-- Desktop Menu -->
-                <div class="hidden md:flex items-center gap-8">
-                    <a href="#fleet" class="text-sm font-medium text-gray-500 hover:text-gray-900">Fleet</a>
-                    <a href="#about" class="text-sm font-medium text-gray-500 hover:text-gray-900">About</a>
-                    <a href="#contact" class="text-sm font-medium text-gray-500 hover:text-gray-900">Contact</a>
+                <div class="hidden md:flex items-center gap-10">
+                    <a href="index.php" class="text-sm font-medium text-white hover:text-gray-400 tracking-wider transition">HOME</a>
+                    <a href="#fleet" class="text-sm font-medium text-white hover:text-gray-400 tracking-wider transition">GALLERY</a>
+                    <a href="#about" class="text-sm font-medium text-white hover:text-gray-400 tracking-wider transition">ABOUT</a>
+                    <a href="#contact" class="text-sm font-medium text-white hover:text-gray-400 tracking-wider transition">CONTACT US</a>
                 </div>
 
+                <!-- Auth/Actions -->
                 <div class="flex items-center gap-6">
                     <?php if(isset($_SESSION['user_id'])): ?>
                         <div class="text-right hidden sm:block">
-                            <p class="text-sm font-bold text-gray-900"><?php echo htmlspecialchars($_SESSION['user_name']); ?></p>
-                            <p class="text-xs text-blue-600 font-medium uppercase tracking-wide"><?php echo $_SESSION['user_role']; ?></p>
+                            <p class="text-sm font-bold text-white"><?php echo htmlspecialchars($_SESSION['user_name']); ?></p>
+                            <p class="text-[10px] text-gray-400 uppercase tracking-widest"><?php echo $_SESSION['user_role']; ?></p>
                         </div>
                         <?php if($_SESSION['user_role'] == 'admin'): ?>
-                            <a href="admin.php" class="text-sm font-bold text-blue-600">Admin Panel</a>
+                            <a href="admin.php" class="text-xs font-bold text-white border border-white/30 px-3 py-1 rounded hover:bg-white hover:text-black transition">ADMIN</a>
                         <?php endif; ?>
-                        <a href="index.php?logout=true" class="p-2.5 text-gray-400 hover:text-red-500 transition-all rounded-full hover:bg-red-50">
-                            <i data-lucide="log-out"></i>
+                        <a href="index.php?logout=true" class="text-gray-400 hover:text-white transition">
+                            <i data-lucide="log-out" class="w-5 h-5"></i>
                         </a>
                     <?php else: ?>
-                        <button onclick="toggleModal('authModal')" class="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition transform hover:-translate-y-0.5">
-                            <i data-lucide="log-in" class="w-4 h-4"></i> Login / Register
+                        <button onclick="toggleModal('authModal')" class="border border-white/30 px-6 py-2 text-xs font-bold tracking-widest hover:bg-white hover:text-black transition uppercase">
+                            Login
                         </button>
                     <?php endif; ?>
                 </div>
@@ -161,400 +188,248 @@ $feedbacks = $conn->query($feedbacks_sql);
         </div>
     </nav>
 
-    <!-- Messages -->
-    <?php if(isset($success)): ?>
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative max-w-7xl mx-auto mt-4 z-50" role="alert">
-            <span class="block sm:inline"><?php echo $success; ?></span>
-        </div>
-    <?php endif; ?>
-    <?php if(isset($error)): ?>
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative max-w-7xl mx-auto mt-4 z-50" role="alert">
-            <span class="block sm:inline"><?php echo $error; ?></span>
-        </div>
-    <?php endif; ?>
-
     <!-- Hero Section -->
-    <div class="relative bg-white overflow-hidden mb-16">
-        <div class="max-w-7xl mx-auto">
-            <div class="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32 pt-20 px-4 sm:px-6 lg:px-8">
-                <main class="mt-10 mx-auto max-w-7xl sm:mt-12 md:mt-16 lg:mt-20 xl:mt-28">
-                    <div class="sm:text-center lg:text-left">
-                        <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-                            <span class="block xl:inline">Drive your dreams</span>
-                            <span class="block text-blue-600 xl:inline">without limits</span>
-                        </h1>
-                        <p class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-                            Premium car rental services for your daily needs. Whether it's a weekend getaway or a business trip, we have the perfect vehicle waiting for you.
-                        </p>
-                        <div class="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
-                            <div class="rounded-md shadow">
-                                <a href="#fleet" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10">
-                                    Browse Fleet
-                                </a>
-                            </div>
-                            <div class="mt-3 sm:mt-0 sm:ml-3">
-                                <a href="#about" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 md:py-4 md:text-lg md:px-10">
-                                    Learn More
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </main>
-            </div>
+    <div class="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
+        <!-- Background Image/Overlay -->
+        <div class="absolute inset-0 z-0">
+            <!-- Using a dark abstract background if car image not available, replace url with real one -->
+            <img src="https://images.unsplash.com/photo-1503376763036-066120622c74?q=80&w=2070&auto=format&fit=crop" class="w-full h-full object-cover opacity-40">
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
         </div>
-        <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-gray-100 flex items-center justify-center text-gray-200">
-             <i data-lucide="car" class="w-96 h-96 opacity-20"></i>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 w-full pt-20">
+            <div class="max-w-3xl">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="h-[1px] w-12 bg-white/50"></div>
+                    <span class="text-sm font-medium tracking-[0.2em] text-gray-300">PREMIUM CAR RENTAL</span>
+                </div>
+                <h1 class="text-5xl md:text-7xl font-black text-white leading-tight mb-6 text-glow">
+                    LUXURY <br/>
+                    LIFESTYLE <br/>
+                    RENTALS
+                </h1>
+                <p class="text-lg text-gray-400 mb-10 max-w-xl font-light">
+                    Enjoy the most luxurious experience. A small river named Duden flows by their place and supplies it with the necessary regelialia.
+                </p>
+                <a href="#fleet" class="inline-block border border-white px-10 py-4 text-sm font-bold tracking-widest hover:bg-white hover:text-black transition duration-300">
+                    DISCOVER FLEET
+                </a>
+            </div>
         </div>
     </div>
 
-    <!-- About Section -->
-    <div id="about" class="py-20 bg-white">
+    <!-- Fleet Section (Today's Specials) -->
+    <div id="fleet" class="py-24 bg-black relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-base text-blue-600 font-bold tracking-wide uppercase">Who We Are</h2>
-                <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-                    About Hansi Travels
-                </p>
-                <p class="mt-4 max-w-2xl text-xl text-gray-500 mx-auto">
-                    Founded in 2024, Hansi Travels has revolutionized the car rental industry by combining technology with exceptional customer service. We believe in making mobility accessible, affordable, and hassle-free.
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-10 rounded-3xl border border-blue-100 flex flex-col items-center text-center relative overflow-hidden">
-                    <div class="bg-white p-4 rounded-full shadow-md mb-6 z-10">
-                        <i data-lucide="eye" class="w-8 h-8 text-blue-600"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-4 z-10">Our Vision</h3>
-                    <p class="text-gray-600 leading-relaxed z-10">
-                        To be the world's most customer-centric mobility company, where customers can find and rent any vehicle they might need for their journey.
-                    </p>
+            <!-- Header & Filter -->
+            <div class="flex flex-col md:flex-row justify-between items-end mb-16 border-b border-white/10 pb-6">
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-bold text-white mb-2 uppercase tracking-wide">Today's Specials</h2>
+                    <p class="text-gray-500 text-sm tracking-wider">PREMIUM SELECTION</p>
                 </div>
-
-                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-10 rounded-3xl border border-blue-100 flex flex-col items-center text-center relative overflow-hidden">
-                    <div class="bg-white p-4 rounded-full shadow-md mb-6 z-10">
-                        <i data-lucide="target" class="w-8 h-8 text-blue-600"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-4 z-10">Our Mission</h3>
-                    <p class="text-gray-600 leading-relaxed z-10">
-                        We strive to offer the best rental experience by maintaining a premium fleet, offering transparent pricing, and ensuring customer safety.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Fleet Section -->
-    <div id="fleet" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 pt-12">
-        <div class="flex flex-col lg:flex-row justify-between items-end mb-10 gap-6">
-            <div class="w-full lg:w-auto">
-                <h2 class="text-3xl font-extrabold text-gray-900">Premium Fleet</h2>
-                <p class="text-gray-500 mt-2 text-lg">Choose from our wide range of vehicles</p>
-            </div>
-            
-            <div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto items-start sm:items-center">
                 
-                <!-- Sort Tabs -->
-                <div class="flex bg-gray-100 p-1 rounded-lg self-start sm:self-auto">
-                    <a href="?filter=<?php echo $current_filter; ?>&sort=default#fleet" class="px-4 py-2 rounded-md text-sm font-medium transition <?php echo $current_sort == 'default' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'; ?>">
-                        Recommended
-                    </a>
-                    <a href="?filter=<?php echo $current_filter; ?>&sort=asc#fleet" class="px-4 py-2 rounded-md text-sm font-medium transition <?php echo $current_sort == 'asc' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'; ?>">
-                        Price ↑
-                    </a>
-                    <a href="?filter=<?php echo $current_filter; ?>&sort=desc#fleet" class="px-4 py-2 rounded-md text-sm font-medium transition <?php echo $current_sort == 'desc' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'; ?>">
-                        Price ↓
-                    </a>
-                </div>
+                <div class="flex flex-col sm:flex-row gap-6 mt-6 md:mt-0">
+                    <!-- Sort Tabs -->
+                    <div class="flex text-sm font-medium text-gray-400 gap-6">
+                        <a href="?filter=<?php echo $current_filter; ?>&sort=default#fleet" class="<?php echo $current_sort == 'default' ? 'text-white border-b-2 border-white pb-1' : 'hover:text-white transition'; ?>">Recommended</a>
+                        <a href="?filter=<?php echo $current_filter; ?>&sort=asc#fleet" class="<?php echo $current_sort == 'asc' ? 'text-white border-b-2 border-white pb-1' : 'hover:text-white transition'; ?>">Price Low</a>
+                        <a href="?filter=<?php echo $current_filter; ?>&sort=desc#fleet" class="<?php echo $current_sort == 'desc' ? 'text-white border-b-2 border-white pb-1' : 'hover:text-white transition'; ?>">Price High</a>
+                    </div>
 
-                <!-- Filter Tabs -->
-                <div class="flex bg-gray-100 p-1.5 rounded-xl overflow-x-auto w-full sm:w-auto no-scrollbar">
-                    <?php 
-                    $filters = ['all' => 'All', 'sedan' => 'Sedan', 'suv' => 'SUV', 'truck' => 'Truck', 'motorcycle' => 'Motorcycle'];
-                    foreach ($filters as $key => $label): 
-                    ?>
-                        <a href="?filter=<?php echo $key; ?>&sort=<?php echo $current_sort; ?>#fleet" 
-                           class="px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 whitespace-nowrap <?php echo $current_filter == $key ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'; ?>">
-                            <?php echo $label; ?>
-                        </a>
-                    <?php endforeach; ?>
+                    <!-- Type Filters as Button-like Tabs -->
+                    <div class="flex gap-4">
+                        <a href="?filter=all&sort=<?php echo $current_sort; ?>#fleet" class="border border-white/20 px-4 py-1 text-xs uppercase tracking-wider hover:border-white transition <?php echo $current_filter == 'all' ? 'bg-white text-black border-white' : 'text-gray-400'; ?>">View All</a>
+                        <a href="?filter=suv&sort=<?php echo $current_sort; ?>#fleet" class="border border-white/20 px-4 py-1 text-xs uppercase tracking-wider hover:border-white transition <?php echo $current_filter == 'suv' ? 'bg-white text-black border-white' : 'text-gray-400'; ?>">SUV</a>
+                        <a href="?filter=sedan&sort=<?php echo $current_sort; ?>#fleet" class="border border-white/20 px-4 py-1 text-xs uppercase tracking-wider hover:border-white transition <?php echo $current_filter == 'sedan' ? 'bg-white text-black border-white' : 'text-gray-400'; ?>">Sedan</a>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            <?php if ($vehicles->num_rows > 0): ?>
-                <?php while($row = $vehicles->fetch_assoc()): ?>
-                    <div class="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col">
-                        
-                        <!-- VEHICLE IMAGE LOGIC START -->
-                        <div class="h-56 bg-gray-50 flex items-center justify-center text-gray-300 relative group-hover:bg-blue-50/30 transition-colors duration-300 overflow-hidden">
-                            <?php if(!empty($row['image_url'])): ?>
-                                <img src="<?php echo htmlspecialchars($row['image_url']); ?>" alt="<?php echo htmlspecialchars($row['model']); ?>" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                            <?php else: ?>
-                                <i data-lucide="car" class="w-24 h-24"></i>
-                            <?php endif; ?>
-                            
-                            <div class="absolute top-4 right-4">
-                                <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-green-100 text-green-800">Available</span>
+            <!-- Car Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
+                <?php if ($vehicles->num_rows > 0): ?>
+                    <?php while($row = $vehicles->fetch_assoc()): ?>
+                        <div class="group relative">
+                            <!-- Image Container -->
+                            <div class="aspect-[16/9] overflow-hidden bg-[#111] mb-6 relative">
+                                <?php if(!empty($row['image_url'])): ?>
+                                    <img src="<?php echo htmlspecialchars($row['image_url']); ?>" alt="<?php echo htmlspecialchars($row['model']); ?>" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100">
+                                <?php else: ?>
+                                    <div class="w-full h-full flex items-center justify-center text-gray-700">
+                                        <i data-lucide="car" class="w-16 h-16"></i>
+                                    </div>
+                                <?php endif; ?>
+                                
+                                <!-- Hover Overlay Button -->
+                                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300 bg-black/40">
+                                    <button onclick="openRentModal(<?php echo htmlspecialchars(json_encode($row)); ?>)" class="border border-white px-6 py-2 text-xs font-bold tracking-widest bg-white text-black hover:bg-black hover:text-white transition uppercase">
+                                        Rent Now
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                        <!-- VEHICLE IMAGE LOGIC END -->
 
-                        <div class="p-6 flex-1 flex flex-col">
-                            <div class="flex justify-between items-start mb-3">
+                            <!-- Info -->
+                            <div class="flex justify-between items-end border-b border-gray-800 pb-4">
                                 <div>
-                                    <h3 class="text-xl font-bold text-gray-900"><?php echo $row['make'] . ' ' . $row['model']; ?></h3>
-                                    <?php if(!empty($row['vehicle_number'])): ?>
-                                        <p class="text-xs text-gray-500 mt-1"><?php echo htmlspecialchars($row['vehicle_number']); ?></p>
-                                    <?php endif; ?>
+                                    <h3 class="text-xl font-bold text-white mb-1"><?php echo $row['make'] . ' ' . $row['model']; ?></h3>
+                                    <div class="flex text-yellow-500 gap-1 text-xs">
+                                        <i data-lucide="star" class="w-3 h-3 fill-current"></i>
+                                        <i data-lucide="star" class="w-3 h-3 fill-current"></i>
+                                        <i data-lucide="star" class="w-3 h-3 fill-current"></i>
+                                        <i data-lucide="star" class="w-3 h-3 fill-current"></i>
+                                        <i data-lucide="star" class="w-3 h-3 fill-current"></i>
+                                    </div>
                                 </div>
                                 <div class="text-right">
-                                    <p class="text-2xl font-bold text-blue-600">$<?php echo $row['price_per_day']; ?></p>
-                                    <p class="text-xs text-gray-400 font-medium">per day</p>
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-2 gap-4 mb-6 text-sm text-gray-600">
-                                <span class="flex items-center gap-2"><i data-lucide="settings" class="w-4 h-4"></i> <?php echo $row['transmission']; ?></span>
-                                <span class="flex items-center gap-2"><i data-lucide="users" class="w-4 h-4"></i> <?php echo $row['seats']; ?> Seats</span>
-                            </div>
-                            <button onclick="openRentModal(<?php echo htmlspecialchars(json_encode($row)); ?>)" class="w-full py-3.5 px-6 rounded-xl font-bold flex items-center justify-center gap-2 bg-blue-600 text-white hover:bg-blue-700 transition shadow-md">
-                                Rent Now <i data-lucide="chevron-right" class="w-4 h-4"></i>
-                            </button>
-                        </div>
-                    </div>
-                <?php endwhile; ?>
-            <?php else: ?>
-                <p class="col-span-3 text-center text-gray-500">No vehicles found.</p>
-            <?php endif; ?>
-        </div>
-    </div>
-
-    <!-- Feedback & Testimonials Section -->
-    <div class="py-20 bg-gray-50 border-t border-gray-100">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-base text-blue-600 font-bold tracking-wide uppercase">Testimonials</h2>
-                <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-                    What our customers say
-                </p>
-            </div>
-
-            <!-- Display Feedbacks -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-                <?php if ($feedbacks->num_rows > 0): ?>
-                    <?php while($fb = $feedbacks->fetch_assoc()): ?>
-                        <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative">
-                            <div class="flex gap-1 text-yellow-400 mb-4">
-                                <?php for($i=0; $i<5; $i++): ?>
-                                    <i data-lucide="star" class="w-4 h-4 <?php echo $i < $fb['rating'] ? 'fill-current' : 'text-gray-300'; ?>"></i>
-                                <?php endfor; ?>
-                            </div>
-                            <p class="text-gray-600 mb-6 italic leading-relaxed">"<?php echo htmlspecialchars($fb['message']); ?>"</p>
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
-                                    <?php echo strtoupper(substr($fb['user_name'], 0, 1)); ?>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-bold text-gray-900"><?php echo htmlspecialchars($fb['user_name']); ?></p>
-                                    <p class="text-xs text-gray-400"><?php echo date('M d, Y', strtotime($fb['created_at'])); ?></p>
+                                    <p class="text-sm text-gray-500 uppercase tracking-wider mb-1"><?php echo $row['type']; ?></p>
+                                    <p class="text-lg font-bold text-white">$<?php echo number_format($row['price_per_day']); ?></p>
                                 </div>
                             </div>
                         </div>
                     <?php endwhile; ?>
                 <?php else: ?>
-                    <div class="col-span-3 text-center text-gray-400">No feedback yet. Be the first!</div>
+                    <p class="col-span-3 text-center text-gray-500 py-20">No vehicles available in this category.</p>
                 <?php endif; ?>
             </div>
+        </div>
+    </div>
 
-            <!-- Feedback Form -->
-            <div class="max-w-2xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden">
-                <div class="bg-blue-600 p-8 text-white text-center">
-                    <i data-lucide="message-square" class="w-8 h-8 mx-auto mb-4"></i>
-                    <h3 class="text-2xl font-bold">Share your experience</h3>
-                    <p class="text-blue-100 opacity-90">Your feedback helps us improve.</p>
+    <!-- About / Promo Section -->
+    <div id="about" class="py-24 bg-[#0a0a0a] relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <h2 class="text-4xl md:text-5xl font-black text-white mb-6 leading-tight">
+                        LUXURY CAR <br/> RENTAL MIAMI
+                    </h2>
+                    <p class="text-gray-400 mb-8 leading-relaxed font-light">
+                        A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country, in which roasted parts of sentences fly into your mouth.
+                    </p>
+                    <div class="grid grid-cols-3 gap-8 mb-10">
+                        <div class="text-center p-4 border border-white/10 hover:border-white/30 transition">
+                            <i data-lucide="car" class="w-8 h-8 mx-auto mb-2 text-white"></i>
+                            <span class="text-xs uppercase tracking-widest text-gray-400">Motors</span>
+                        </div>
+                        <div class="text-center p-4 border border-white/10 hover:border-white/30 transition">
+                            <i data-lucide="gem" class="w-8 h-8 mx-auto mb-2 text-white"></i>
+                            <span class="text-xs uppercase tracking-widest text-gray-400">Luxury</span>
+                        </div>
+                        <div class="text-center p-4 border border-white/10 hover:border-white/30 transition">
+                            <i data-lucide="shield-check" class="w-8 h-8 mx-auto mb-2 text-white"></i>
+                            <span class="text-xs uppercase tracking-widest text-gray-400">Safe</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="p-8">
-                    <?php if(isset($_SESSION['user_id'])): ?>
-                    <form method="POST" class="space-y-6">
+                <div class="relative">
+                    <img src="https://images.unsplash.com/photo-1617788138017-80ad40651399?q=80&w=2070&auto=format&fit=crop" class="w-full grayscale hover:grayscale-0 transition duration-700">
+                    <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-black border border-white/10 -z-10"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact / Footer Section -->
+    <div id="contact" class="bg-black pt-24 pb-12 border-t border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                <!-- Brand Info -->
+                <div>
+                    <div class="flex items-center gap-3 mb-8">
+                        <img src="Gemini_Generated_Image_3vfrwe3vfrwe3vfr.jpg" alt="Logo" class="w-10 h-10 object-contain filter brightness-0 invert"/>
+                        <span class="font-black text-2xl tracking-widest text-white">RENT&GO</span>
+                    </div>
+                    <div class="space-y-6 text-sm text-gray-400">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Rating</label>
-                            <select name="rating" class="w-full p-3 border rounded-xl bg-white">
-                                <option value="5">5 Stars - Excellent</option>
-                                <option value="4">4 Stars - Good</option>
-                                <option value="3">3 Stars - Average</option>
-                                <option value="2">2 Stars - Poor</option>
-                                <option value="1">1 Star - Terrible</option>
-                            </select>
+                            <p class="text-white font-bold uppercase tracking-widest mb-1">UAE - Dubai</p>
+                            <p>+971 21 658 359</p>
+                            <p>info-cars@gmail.com</p>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Your Message</label>
-                            <textarea name="message" rows="4" required class="w-full px-4 py-3 rounded-xl border border-gray-300" placeholder="Tell us about your trip..."></textarea>
+                        <div class="flex gap-4 pt-4">
+                            <a href="#" class="hover:text-white transition"><i data-lucide="instagram" class="w-5 h-5"></i></a>
+                            <a href="#" class="hover:text-white transition"><i data-lucide="twitter" class="w-5 h-5"></i></a>
+                            <a href="#" class="hover:text-white transition"><i data-lucide="facebook" class="w-5 h-5"></i></a>
                         </div>
-                        <button type="submit" name="submit_feedback" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition flex items-center justify-center gap-2">
-                            Submit Feedback <i data-lucide="send" class="w-4 h-4"></i>
-                        </button>
+                    </div>
+                </div>
+
+                <!-- Contact Form -->
+                <div>
+                    <form method="POST" class="grid grid-cols-2 gap-4">
+                        <input type="text" name="name" placeholder="First Name" class="col-span-1 bg-transparent border border-white/20 p-3 text-white text-sm focus:border-white focus:outline-none transition placeholder-gray-600">
+                        <input type="text" name="lastname" placeholder="Last Name" class="col-span-1 bg-transparent border border-white/20 p-3 text-white text-sm focus:border-white focus:outline-none transition placeholder-gray-600">
+                        
+                        <input type="email" name="email" placeholder="Email" class="col-span-1 bg-transparent border border-white/20 p-3 text-white text-sm focus:border-white focus:outline-none transition placeholder-gray-600">
+                        <input type="text" name="phone" placeholder="Phone Number" class="col-span-1 bg-transparent border border-white/20 p-3 text-white text-sm focus:border-white focus:outline-none transition placeholder-gray-600">
+                        
+                        <textarea name="message" placeholder="Message" rows="1" class="col-span-2 bg-transparent border border-white/20 p-3 text-white text-sm focus:border-white focus:outline-none transition placeholder-gray-600"></textarea>
+                        
+                        <div class="col-span-2 flex justify-end">
+                            <button type="submit" name="send_contact" class="bg-white text-black px-8 py-3 text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition">
+                                Send Message
+                            </button>
+                        </div>
                     </form>
-                    <?php else: ?>
-                        <div class="text-center text-gray-500 py-4">
-                            Please <button onclick="toggleModal('authModal')" class="text-blue-600 font-bold hover:underline">login</button> to leave feedback.
-                        </div>
-                    <?php endif; ?>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Detailed Contact Section -->
-    <div id="contact" class="py-20 bg-white scroll-mt-16">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-16">
-          <h2 class="text-base text-blue-600 font-bold tracking-wide uppercase">Get in Touch</h2>
-          <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-            Contact Us
-          </p>
-          <p class="mt-4 max-w-2xl text-xl text-gray-500 mx-auto">
-            Have questions? We're here to help 24/7.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <!-- Contact Form -->
-          <div class="bg-gray-50 p-8 rounded-3xl border border-gray-100 shadow-sm">
-            <form method="POST" class="space-y-6">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                <input type="text" name="name" required placeholder="John Doe" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white">
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                <input type="email" name="email" required placeholder="john@example.com" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white">
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Message</label>
-                <textarea name="message" rows="4" required placeholder="How can we help you today?" class="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white"></textarea>
-              </div>
-              <button type="submit" name="send_contact" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition shadow-lg">
-                Send Message
-              </button>
-            </form>
-          </div>
-
-          <!-- Info & WhatsApp -->
-          <div class="flex flex-col justify-between gap-8">
-            <div class="bg-gradient-to-br from-blue-600 to-blue-800 p-8 rounded-3xl text-white shadow-xl relative overflow-hidden">
-              <h3 class="text-2xl font-bold mb-6 relative z-10">Contact Information</h3>
-              <div class="space-y-6 relative z-10">
-                <div class="flex items-start gap-4">
-                  <i data-lucide="map-pin" class="w-6 h-6"></i>
-                  <div>
-                    <p class="font-semibold text-blue-100 text-sm uppercase tracking-wide mb-1">Address</p>
-                    <p class="text-lg">123 Rental Avenue, Suite 456<br />Metropolis, NY 10012</p>
-                  </div>
-                </div>
-                
-                <div class="flex items-start gap-4">
-                   <i data-lucide="phone" class="w-6 h-6"></i>
-                  <div>
-                    <p class="font-semibold text-blue-100 text-sm uppercase tracking-wide mb-1">Phone</p>
-                    <p class="text-lg">+1 (555) 123-4567</p>
-                  </div>
-                </div>
-
-                <div class="flex items-start gap-4">
-                   <i data-lucide="mail" class="w-6 h-6"></i>
-                  <div>
-                    <p class="font-semibold text-blue-100 text-sm uppercase tracking-wide mb-1">Email</p>
-                    <p class="text-lg">support@rentandgo.com</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="bg-green-50 p-8 rounded-3xl border border-green-100 text-center flex-grow flex flex-col justify-center items-center shadow-sm hover:shadow-md transition-shadow">
-              <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4 text-green-600">
-                 <i data-lucide="message-circle" class="w-8 h-8"></i>
-              </div>
-              <h3 class="text-2xl font-bold text-gray-900 mb-2">Chat with us</h3>
-              <p class="text-gray-600 mb-6 max-w-xs mx-auto">Need immediate assistance? Our support team is available on WhatsApp.</p>
-              <a href="https://wa.me/1234567890" target="_blank" class="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-8 rounded-full transition transform hover:scale-105 shadow-lg shadow-green-200">
-                 <i data-lucide="message-circle" class="w-6 h-6"></i> Chat on WhatsApp
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Auth Modal -->
-    <div id="authModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-md relative">
-            <button onclick="toggleModal('authModal')" class="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full"><i data-lucide="x"></i></button>
-            <h2 class="text-2xl font-bold mb-6 text-center">Login</h2>
-            <form method="POST">
-                <div class="mb-4">
-                    <label class="block text-sm font-medium mb-2">Email</label>
-                    <input type="email" name="email" required class="w-full px-4 py-2 border rounded-lg">
-                </div>
-                <div class="mb-6">
-                    <label class="block text-sm font-medium mb-2">Password</label>
-                    <input type="password" name="password" required class="w-full px-4 py-2 border rounded-lg">
-                </div>
-                <button type="submit" name="login_user" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg">Login</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Rent Modal -->
-    <div id="rentModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md relative">
-            <button onclick="toggleModal('rentModal')" class="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full"><i data-lucide="x"></i></button>
-            <h2 class="text-xl font-bold mb-1">Complete Booking</h2>
-            <p id="modalCarName" class="text-blue-600 mb-6"></p>
             
-            <form method="POST" oninput="calculateTotal()">
+            <div class="mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center text-xs text-gray-600">
+                <p>Copyright © 2024 Rent & Go</p>
+                <p>Developed by <span class="text-white">YourName</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal (Dark) -->
+    <div id="authModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-[#111] border border-white/10 p-10 max-w-md w-full relative">
+            <button onclick="toggleModal('authModal')" class="absolute top-4 right-4 text-gray-500 hover:text-white"><i data-lucide="x"></i></button>
+            <h2 class="text-2xl font-bold mb-8 text-center text-white uppercase tracking-widest">Login</h2>
+            <form method="POST" class="space-y-4">
+                <input type="email" name="email" required placeholder="Email" class="w-full bg-black border border-white/20 p-4 text-white placeholder-gray-600 focus:border-white outline-none">
+                <input type="password" name="password" required placeholder="Password" class="w-full bg-black border border-white/20 p-4 text-white placeholder-gray-600 focus:border-white outline-none">
+                <button type="submit" name="login_user" class="w-full bg-white text-black font-bold py-4 uppercase tracking-widest hover:bg-gray-200 transition">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Rent Modal (Dark) -->
+    <div id="rentModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-[#111] border border-white/10 p-8 max-w-md w-full relative">
+            <button onclick="toggleModal('rentModal')" class="absolute top-4 right-4 text-gray-500 hover:text-white"><i data-lucide="x"></i></button>
+            <h2 class="text-xl font-bold mb-2 text-white uppercase tracking-wider">Booking</h2>
+            <p id="modalCarName" class="text-gray-400 mb-8 text-sm"></p>
+            
+            <form method="POST" oninput="calculateTotal()" class="space-y-4">
                 <input type="hidden" name="vehicle_id" id="modalVehicleId">
                 <input type="hidden" name="price_per_day" id="modalPrice">
                 <input type="hidden" name="total_cost" id="modalTotalInput">
                 
-                <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Pick-up</label>
-                        <input type="date" name="start_date" id="startDate" required class="w-full p-2 border rounded-lg">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Pick-up</label>
+                        <input type="date" name="start_date" id="startDate" required class="w-full bg-black border border-white/20 p-3 text-white focus:border-white outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Return</label>
-                        <input type="date" name="end_date" id="endDate" required class="w-full p-2 border rounded-lg">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Return</label>
+                        <input type="date" name="end_date" id="endDate" required class="w-full bg-black border border-white/20 p-3 text-white focus:border-white outline-none">
                     </div>
                 </div>
                 
-                <div class="bg-blue-50 p-4 rounded-xl mb-6 flex justify-between items-center">
-                    <span class="text-sm text-gray-600">Total Cost</span>
-                    <span class="font-bold text-xl text-blue-900" id="displayTotal">$0.00</span>
+                <div class="border-t border-white/10 pt-4 mt-4 flex justify-between items-center">
+                    <span class="text-sm text-gray-400 uppercase tracking-widest">Total</span>
+                    <span class="font-bold text-2xl text-white" id="displayTotal">$0.00</span>
                 </div>
 
                 <?php if(isset($_SESSION['user_id'])): ?>
-                    <button type="submit" name="confirm_rental" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl">Confirm Reservation</button>
+                    <button type="submit" name="confirm_rental" class="w-full bg-white text-black font-bold py-4 uppercase tracking-widest hover:bg-gray-200 transition mt-4">Confirm</button>
                 <?php else: ?>
-                    <button type="button" onclick="toggleModal('rentModal'); toggleModal('authModal');" class="w-full bg-gray-800 text-white font-bold py-3 rounded-xl">Login to Rent</button>
+                    <button type="button" onclick="toggleModal('rentModal'); toggleModal('authModal');" class="w-full bg-gray-800 text-gray-300 font-bold py-4 uppercase tracking-widest hover:bg-gray-700 transition mt-4">Login Required</button>
                 <?php endif; ?>
             </form>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12 mt-12">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="text-gray-500">&copy; 2024 Hansi Travels Inc. All rights reserved.</p>
-            <div class="flex justify-center gap-4 mt-4 text-sm text-gray-400">
-                <a href="#" class="hover:text-white">Terms</a>
-                <a href="#" class="hover:text-white">Privacy</a>
-            </div>
-        </div>
-    </footer>
-
     <script>
-        // Initialize Icons
         lucide.createIcons();
 
         function toggleModal(id) {
@@ -568,7 +443,6 @@ $feedbacks = $conn->query($feedbacks_sql);
             document.getElementById('modalVehicleId').value = vehicle.id;
             document.getElementById('modalPrice').value = vehicle.price_per_day;
             
-            // Set min dates
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('startDate').min = today;
             document.getElementById('endDate').min = today;
