@@ -1,4 +1,9 @@
 <?php
+// Add these lines inside the PHP tag
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 session_start();
 require 'db_connect.php';
 
@@ -28,7 +33,7 @@ if (isset($_GET['logout'])) {
     exit();
 }
 
-// Handle Renting
+// Handle Renting (Now triggered after PayPal success)
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirm_rental'])) {
     if (!isset($_SESSION['user_id'])) {
         $error = "Please login first";
@@ -37,13 +42,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirm_rental'])) {
         $start_date = $_POST['start_date'];
         $end_date = $_POST['end_date'];
         $total = $_POST['total_cost'];
+        // Optional: You can capture the PayPal transaction ID here if you added a column for it
+        // $txn_id = $_POST['transaction_id']; 
         
         $stmt = $conn->prepare("INSERT INTO rentals (user_id, vehicle_id, start_date, end_date, total_cost) VALUES (?, ?, ?, ?, ?)");
         $stmt->bind_param("iissd", $_SESSION['user_id'], $vehicle_id, $start_date, $end_date, $total);
         
         if ($stmt->execute()) {
             $conn->query("UPDATE vehicles SET status = 'rented' WHERE id = $vehicle_id");
-            $success = "Booking confirmed!";
+            $success = "Payment Successful! Booking confirmed.";
         }
         $stmt->close();
     }
@@ -103,9 +110,11 @@ $feedbacks = $conn->query($feedbacks_sql);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hansi Travels - Luxury Lifestyle Rentals</title>
+    <title>Rent & Go - Luxury Lifestyle Rentals</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- PayPal Sandbox SDK -->
+    <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD&disable-funding=credit,card"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700;900&display=swap');
         
@@ -153,7 +162,8 @@ $feedbacks = $conn->query($feedbacks_sql);
             <div class="flex justify-between items-center h-24">
                 <!-- Logo -->
                 <a href="index.php" class="flex items-center gap-3 group">
-                    <img src="./uploads/rent&go_logo.png" alt="Logo" class="w-12 h-12 object-contain filter brightness-0 invert group-hover:opacity-80 transition"/>
+                    <img src="Gemini_Generated_Image_3vfrwe3vfrwe3vfr.jpg" alt="Logo" class="w-12 h-12 object-contain filter brightness-0 invert group-hover:opacity-80 transition"/>
+                    <span class="font-black text-2xl tracking-widest text-white group-hover:text-gray-300 transition">RENT&GO</span>
                 </a>
                 
                 <!-- Desktop Menu -->
@@ -216,6 +226,18 @@ $feedbacks = $conn->query($feedbacks_sql);
             </div>
         </div>
     </div>
+
+    <!-- Messages -->
+    <?php if(isset($success)): ?>
+        <div class="fixed top-24 right-4 z-50 bg-green-500 text-white px-6 py-4 rounded shadow-xl animate-bounce">
+            <span class="block font-bold"><?php echo $success; ?></span>
+        </div>
+    <?php endif; ?>
+    <?php if(isset($error)): ?>
+        <div class="fixed top-24 right-4 z-50 bg-red-500 text-white px-6 py-4 rounded shadow-xl">
+            <span class="block font-bold"><?php echo $error; ?></span>
+        </div>
+    <?php endif; ?>
 
     <!-- Fleet Section (Today's Specials) -->
     <div id="fleet" class="py-24 bg-black relative">
@@ -299,7 +321,7 @@ $feedbacks = $conn->query($feedbacks_sql);
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                 <div>
                     <h2 class="text-4xl md:text-5xl font-black text-white mb-6 leading-tight">
-                        LUXURY CAR <br/>RENTAL Sri Lanka
+                        LUXURY CAR <br/> RENTAL MIAMI
                     </h2>
                     <p class="text-gray-400 mb-8 leading-relaxed font-light">
                         A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country, in which roasted parts of sentences fly into your mouth.
@@ -334,14 +356,14 @@ $feedbacks = $conn->query($feedbacks_sql);
                 <!-- Brand Info -->
                 <div>
                     <div class="flex items-center gap-3 mb-8">
-                        <img src="D:/uploads/rent&go_logo.png" alt="Logo" class="w-10 h-10 object-contain filter brightness-0 invert"/>
-                        <span class="font-black text-2xl tracking-widest text-white">Hansi Travels</span>
+                        <img src="Gemini_Generated_Image_3vfrwe3vfrwe3vfr.jpg" alt="Logo" class="w-10 h-10 object-contain filter brightness-0 invert"/>
+                        <span class="font-black text-2xl tracking-widest text-white">RENT&GO</span>
                     </div>
                     <div class="space-y-6 text-sm text-gray-400">
                         <div>
-                            <p class="text-white font-bold uppercase tracking-widest mb-1">Colombo-LK</p>
-                            <p>+94712345678</p>
-                            <p>info@hansitravels.com</p>
+                            <p class="text-white font-bold uppercase tracking-widest mb-1">UAE - Dubai</p>
+                            <p>+971 21 658 359</p>
+                            <p>info-cars@gmail.com</p>
                         </div>
                         <div class="flex gap-4 pt-4">
                             <a href="#" class="hover:text-white transition"><i data-lucide="instagram" class="w-5 h-5"></i></a>
@@ -372,7 +394,8 @@ $feedbacks = $conn->query($feedbacks_sql);
             </div>
             
             <div class="mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center text-xs text-gray-600">
-                <p>Copyright © 2024 Hansi Travels</p>
+                <p>Copyright © 2024 Rent & Go</p>
+                <p>Developed by <span class="text-white">YourName</span></p>
             </div>
         </div>
     </div>
@@ -390,17 +413,19 @@ $feedbacks = $conn->query($feedbacks_sql);
         </div>
     </div>
 
-    <!-- Rent Modal (Dark) -->
+    <!-- Rent Modal (Dark) with PayPal -->
     <div id="rentModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-[#111] border border-white/10 p-8 max-w-md w-full relative">
             <button onclick="toggleModal('rentModal')" class="absolute top-4 right-4 text-gray-500 hover:text-white"><i data-lucide="x"></i></button>
             <h2 class="text-xl font-bold mb-2 text-white uppercase tracking-wider">Booking</h2>
             <p id="modalCarName" class="text-gray-400 mb-8 text-sm"></p>
             
-            <form method="POST" oninput="calculateTotal()" class="space-y-4">
+            <form id="rentForm" method="POST" oninput="calculateTotal()" class="space-y-4">
                 <input type="hidden" name="vehicle_id" id="modalVehicleId">
                 <input type="hidden" name="price_per_day" id="modalPrice">
                 <input type="hidden" name="total_cost" id="modalTotalInput">
+                <input type="hidden" name="transaction_id" id="transactionId">
+                <input type="hidden" name="confirm_rental" value="1">
                 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -413,13 +438,13 @@ $feedbacks = $conn->query($feedbacks_sql);
                     </div>
                 </div>
                 
-                <div class="border-t border-white/10 pt-4 mt-4 flex justify-between items-center">
+                <div class="border-t border-white/10 pt-4 mt-4 flex justify-between items-center mb-4">
                     <span class="text-sm text-gray-400 uppercase tracking-widest">Total</span>
                     <span class="font-bold text-2xl text-white" id="displayTotal">$0.00</span>
                 </div>
 
                 <?php if(isset($_SESSION['user_id'])): ?>
-                    <button type="submit" name="confirm_rental" class="w-full bg-white text-black font-bold py-4 uppercase tracking-widest hover:bg-gray-200 transition mt-4">Confirm</button>
+                    <div id="paypal-button-container" class="mt-6"></div>
                 <?php else: ?>
                     <button type="button" onclick="toggleModal('rentModal'); toggleModal('authModal');" class="w-full bg-gray-800 text-gray-300 font-bold py-4 uppercase tracking-widest hover:bg-gray-700 transition mt-4">Login Required</button>
                 <?php endif; ?>
@@ -445,6 +470,12 @@ $feedbacks = $conn->query($feedbacks_sql);
             document.getElementById('startDate').min = today;
             document.getElementById('endDate').min = today;
             
+            // Clear previous button before rendering new one
+            document.getElementById('paypal-button-container').innerHTML = '';
+            
+            // Re-render PayPal button
+            renderPayPalButton();
+            
             toggleModal('rentModal');
         }
 
@@ -460,6 +491,43 @@ $feedbacks = $conn->query($feedbacks_sql);
                 
                 document.getElementById('displayTotal').innerText = '$' + total.toFixed(2);
                 document.getElementById('modalTotalInput').value = total;
+                return total;
+            }
+            return 0;
+        }
+
+        function renderPayPalButton() {
+            if(document.getElementById('paypal-button-container')) {
+                paypal.Buttons({
+                    style: {
+                        layout: 'vertical',
+                        color:  'gold',
+                        shape:  'rect',
+                        label:  'pay'
+                    },
+                    createOrder: function(data, actions) {
+                        const total = document.getElementById('modalTotalInput').value;
+                        if (!total || total <= 0) {
+                            alert("Please select valid dates first.");
+                            return; // Stop execution
+                        }
+                        return actions.order.create({
+                            purchase_units: [{
+                                amount: {
+                                    value: total
+                                }
+                            }]
+                        });
+                    },
+                    onApprove: function(data, actions) {
+                        return actions.order.capture().then(function(details) {
+                            // Payment Success
+                            document.getElementById('transactionId').value = details.id;
+                            // Submit the form
+                            document.getElementById('rentForm').submit();
+                        });
+                    }
+                }).render('#paypal-button-container');
             }
         }
     </script>
