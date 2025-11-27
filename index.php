@@ -130,7 +130,6 @@ $feedbacks = $conn->query($feedbacks_sql);
                         <!-- Ensure this image is in your folder -->
                         <img src="./uploads/rent&go_logo.png" alt="Logo" class="w-full h-full object-contain"/>
                     </div>
-                    <span class="font-extrabold text-2xl tracking-tighter text-gray-900">Hansi Travels</span>
                 </a>
                 
                 <!-- Desktop Menu -->
