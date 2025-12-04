@@ -88,9 +88,14 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
                 </div>
                 <h1 class="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
             </div>
-            <a href="index.php" class="flex items-center gap-2 text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg transition font-medium">
-                <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Home
-            </a>
+            <div class="flex gap-2">
+                <a href="index.php" class="flex items-center gap-2 text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg transition font-medium">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Home
+                </a>
+                <a href="admin_driver.php" class="flex items-center gap-2 text-green-600 hover:bg-green-50 px-4 py-2 rounded-lg transition font-medium">
+                    <i data-lucide="user" class="w-4 h-4"></i> Driver Management
+                </a>
+            </div>
         </div>
 
         <?php if(isset($error)): ?>
