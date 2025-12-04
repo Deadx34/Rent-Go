@@ -508,6 +508,7 @@ $feedbacks = $conn->query($feedbacks_sql);
         var stripe = Stripe('pk_test_51QWRhAP7jtWZIqsRVTzkQVu5AvLfRz0C5bUxvxYhAuIRmSWEE4jYKPmOJQcKs9YlADQDYjdBrfQu9Vd6ggUCqaY800V75d0aT5'); // Replace with your test publishable key
         var elements = stripe.elements();
         var cardElement = elements.create('card');
+        var cardMounted = false;
         
         function openRentModal(button) {
             // Using Data Attributes to prevent quote escaping issues
@@ -525,10 +526,15 @@ $feedbacks = $conn->query($feedbacks_sql);
             document.getElementById('endDate').value = '';
             endPicker.set('minDate', 'today');
 
-            // Mount Stripe card element
-            cardElement.mount('#card-element');
-            
             toggleModal('rentModal');
+            
+            // Mount Stripe card element after modal is visible
+            setTimeout(function() {
+                if (!cardMounted && document.getElementById('card-element')) {
+                    cardElement.mount('#card-element');
+                    cardMounted = true;
+                }
+            }, 100);
         }
 
         function calculateTotal() {
