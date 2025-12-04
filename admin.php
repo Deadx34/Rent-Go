@@ -95,6 +95,9 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
                 <a href="admin_driver.php" class="flex items-center gap-2 text-green-600 hover:bg-green-50 px-4 py-2 rounded-lg transition font-medium">
                     <i data-lucide="user" class="w-4 h-4"></i> Driver Management
                 </a>
+                <a href="admin_report.php" class="flex items-center gap-2 text-indigo-600 hover:bg-indigo-50 px-4 py-2 rounded-lg transition font-medium">
+                    <i data-lucide="bar-chart-2" class="w-4 h-4"></i> Reporting & Analytics
+                </a>
             </div>
         </div>
 

@@ -48,7 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirm_rental'])) {
         
         if ($stmt->execute()) {
             $conn->query("UPDATE vehicles SET status = 'rented' WHERE id = $vehicle_id");
-            $success = "Payment Successful! Booking confirmed.";
+            $rental_id = $stmt->insert_id;
+            $success = "Payment Successful! Booking confirmed. <a href='invoice.php?id=$rental_id' style='color:#fff;text-decoration:underline;'>View Invoice</a>";
         }
         $stmt->close();
     }
