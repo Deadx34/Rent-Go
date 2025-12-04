@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['stripeToken'])) {
         </form>
     </div>
     <script>
-        var stripe = Stripe('pk_test_XXXXXXXXXXXXXXXXXXXXXXXX'); // Replace with your test publishable key
+        var stripe = Stripe('sk_test_51SaWfrHXfXsWgJRrBqWi6c10Hh1eOf53QdIf7krAOIeRT6uCSaVjbCnaCSxxb8KMlftgAst8gDBNbK61EGZ1V1NB00rTChaF7r'); // Replace with your test publishable key
         var elements = stripe.elements();
         var card = elements.create('card');
         card.mount('#card-element');
