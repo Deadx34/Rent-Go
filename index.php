@@ -469,7 +469,7 @@ $feedbacks = $conn->query($feedbacks_sql);
                     <div id="card-errors" class="text-red-500 text-sm mt-2"></div>
                     <button type="button" id="stripe-pay-btn" onclick="handleStripePayment()" class="w-full bg-blue-600 text-white font-bold py-4 uppercase tracking-widest hover:bg-blue-700 transition mt-4">Pay Now</button>
                 <?php else: ?>
-                    <button type="button" onclick="toggleModal('rentModal'); toggleModal('authModal');" class="w-full bg-gray-800 text-gray-300 font-bold py-4 uppercase tracking-widest hover:bg-gray-700 transition mt-4">Login Required</button>
+                    <button type="button" onclick="toggleModal('rentModal'); toggleModal('authModal');" class="w-full bg-gray-800 text-gray-300 font-bold py-4 uppercase tracking-widest hover:bg-gray-700 transition mt-4">Continue</button>
                 <?php endif; ?>
             </form>
         </div>
