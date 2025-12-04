@@ -156,7 +156,6 @@ $feedbacks = $conn->query($feedbacks_sql);
                 <!-- Logo -->
                 <a href="index.php" class="flex items-center gap-3 group">
                     <img src="Gemini_Generated_Image_3vfrwe3vfrwe3vfr.jpg" alt="Logo" class="w-12 h-12 object-contain filter brightness-0 invert group-hover:opacity-80 transition"/>
-                    <span class="font-black text-2xl tracking-widest text-white group-hover:text-gray-300 transition">Hansi Travels</span>
                 </a>
                 
                 <!-- Desktop Menu -->
