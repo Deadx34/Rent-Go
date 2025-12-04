@@ -556,7 +556,7 @@ $feedbacks = $conn->query($feedbacks_sql);
         }
 
         // Initialize Stripe
-        var stripe = Stripe('pk_test_51QWRhAP7jtWZIqsRVTzkQVu5AvLfRz0C5bUxvxYhAuIRmSWEE4jYKPmOJQcKs9YlADQDYjdBrfQu9Vd6ggUCqaY800V75d0aT5'); // Replace with your test publishable key
+        var stripe = Stripe('pk_test_51SaWfrHXfXsWgJRrrake2zZ1q44Z5aKHz7ACO08TXwFYvG62BZ7DgLKvJcV1D5Y2WMWMuesWhhsxn5f4RT86zaNg00UWUyLVMo'); // Replace with your test publishable key
         var elements = stripe.elements();
         var cardElement = elements.create('card');
         var cardMounted = false;
