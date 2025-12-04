@@ -112,6 +112,9 @@ $feedbacks = $conn->query($feedbacks_sql);
     <title>Rent & Go - Luxury Lifestyle Rentals</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Flatpickr Calendar -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <!-- PayPal Sandbox SDK -->
     <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD&disable-funding=credit,card"></script>
     <style>
@@ -448,11 +451,11 @@ $feedbacks = $conn->query($feedbacks_sql);
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Pick-up</label>
-                        <input type="date" name="start_date" id="startDate" required class="w-full bg-black border border-white/20 p-3 text-white focus:border-white outline-none">
+                        <input type="text" name="start_date" id="startDate" required class="w-full bg-black border border-white/20 p-3 text-white focus:border-white outline-none" placeholder="Select start date">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Return</label>
-                        <input type="date" name="end_date" id="endDate" required class="w-full bg-black border border-white/20 p-3 text-white focus:border-white outline-none">
+                        <input type="text" name="end_date" id="endDate" required class="w-full bg-black border border-white/20 p-3 text-white focus:border-white outline-none" placeholder="Select end date">
                     </div>
                 </div>
                 
@@ -473,6 +476,26 @@ $feedbacks = $conn->query($feedbacks_sql);
     <script>
         lucide.createIcons();
 
+        // Initialize Flatpickr calendars for booking dates
+        flatpickr('#startDate', {
+            minDate: 'today',
+            dateFormat: 'Y-m-d',
+            onChange: function(selectedDates, dateStr, instance) {
+                // Set minDate for endDate based on startDate
+                if (selectedDates.length) {
+                    endPicker.set('minDate', dateStr);
+                }
+                calculateTotal();
+            }
+        });
+        var endPicker = flatpickr('#endDate', {
+            minDate: 'today',
+            dateFormat: 'Y-m-d',
+            onChange: function() {
+                calculateTotal();
+            }
+        });
+
         function toggleModal(id) {
             const modal = document.getElementById(id);
             modal.classList.toggle('hidden');
@@ -489,17 +512,18 @@ $feedbacks = $conn->query($feedbacks_sql);
             document.getElementById('modalCarName').innerText = make + ' ' + model;
             document.getElementById('modalVehicleId').value = id;
             document.getElementById('modalPrice').value = price;
-            
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('startDate').min = today;
-            document.getElementById('endDate').min = today;
-            
+
+            // Reset calendars
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            endPicker.set('minDate', 'today');
+
             // Clear previous button before rendering new one
             document.getElementById('paypal-button-container').innerHTML = '';
-            
+
             // Re-render PayPal button
             renderPayPalButton();
-            
+
             toggleModal('rentModal');
         }
 
@@ -507,12 +531,12 @@ $feedbacks = $conn->query($feedbacks_sql);
             const start = document.getElementById('startDate').value;
             const end = document.getElementById('endDate').value;
             const price = parseFloat(document.getElementById('modalPrice').value);
-            
+
             if (start && end) {
                 const diff = new Date(end) - new Date(start);
                 const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
                 const total = (days > 0 ? days : 1) * price;
-                
+
                 document.getElementById('displayTotal').innerText = '$' + total.toFixed(2);
                 document.getElementById('modalTotalInput').value = total;
                 return total;
