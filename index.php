@@ -414,7 +414,7 @@ $feedbacks = $conn->query($feedbacks_sql);
                     </form>
                 </div>
             </div>
-            
+   
             <div class="mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center text-xs text-gray-600">
                 <p>Copyright © 2025 hansi travels</p>
             </div>
