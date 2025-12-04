@@ -115,8 +115,8 @@ $feedbacks = $conn->query($feedbacks_sql);
     <!-- Flatpickr Calendar -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <!-- PayPal Sandbox SDK -->
-    <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD&disable-funding=credit,card"></script>
+    <!-- Stripe SDK -->
+    <script src="https://js.stripe.com/v3/"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700;900&display=swap');
         
@@ -434,7 +434,7 @@ $feedbacks = $conn->query($feedbacks_sql);
         </div>
     </div>
 
-    <!-- Rent Modal (Dark) with PayPal -->
+    <!-- Rent Modal (Dark) with Stripe -->
     <div id="rentModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-[#111] border border-white/10 p-8 max-w-md w-full relative">
             <button onclick="toggleModal('rentModal')" class="absolute top-4 right-4 text-gray-500 hover:text-white"><i data-lucide="x"></i></button>
@@ -465,7 +465,9 @@ $feedbacks = $conn->query($feedbacks_sql);
                 </div>
 
                 <?php if(isset($_SESSION['user_id'])): ?>
-                    <div id="paypal-button-container" class="mt-6"></div>
+                    <div id="card-element" class="mt-6 p-3 bg-white border border-gray-300 rounded"></div>
+                    <div id="card-errors" class="text-red-500 text-sm mt-2"></div>
+                    <button type="button" id="stripe-pay-btn" onclick="handleStripePayment()" class="w-full bg-blue-600 text-white font-bold py-4 uppercase tracking-widest hover:bg-blue-700 transition mt-4">Pay Now</button>
                 <?php else: ?>
                     <button type="button" onclick="toggleModal('rentModal'); toggleModal('authModal');" class="w-full bg-gray-800 text-gray-300 font-bold py-4 uppercase tracking-widest hover:bg-gray-700 transition mt-4">Login Required</button>
                 <?php endif; ?>
@@ -502,6 +504,11 @@ $feedbacks = $conn->query($feedbacks_sql);
             modal.classList.toggle('flex');
         }
 
+        // Initialize Stripe
+        var stripe = Stripe('pk_test_51QWRhAP7jtWZIqsRVTzkQVu5AvLfRz0C5bUxvxYhAuIRmSWEE4jYKPmOJQcKs9YlADQDYjdBrfQu9Vd6ggUCqaY800V75d0aT5'); // Replace with your test publishable key
+        var elements = stripe.elements();
+        var cardElement = elements.create('card');
+        
         function openRentModal(button) {
             // Using Data Attributes to prevent quote escaping issues
             const id = button.getAttribute('data-id');
@@ -518,12 +525,9 @@ $feedbacks = $conn->query($feedbacks_sql);
             document.getElementById('endDate').value = '';
             endPicker.set('minDate', 'today');
 
-            // Clear previous button before rendering new one
-            document.getElementById('paypal-button-container').innerHTML = '';
-
-            // Re-render PayPal button
-            renderPayPalButton();
-
+            // Mount Stripe card element
+            cardElement.mount('#card-element');
+            
             toggleModal('rentModal');
         }
 
@@ -544,38 +548,26 @@ $feedbacks = $conn->query($feedbacks_sql);
             return 0;
         }
 
-        function renderPayPalButton() {
-            if(document.getElementById('paypal-button-container')) {
-                paypal.Buttons({
-                    style: {
-                        layout: 'vertical',
-                        color:  'gold',
-                        shape:  'rect',
-                        label:  'pay'
-                    },
-                    createOrder: function(data, actions) {
-                        const total = document.getElementById('modalTotalInput').value;
-                        if (!total || total <= 0) {
-                            alert("Please select valid dates first.");
-                            return; // Stop execution
-                        }
-                        return actions.order.create({
-                            purchase_units: [{
-                                amount: {
-                                    value: total
-                                }
-                            }]
-                        });
-                    },
-                    onApprove: function(data, actions) {
-                        return actions.order.capture().then(function(details) {
-                            // Payment Success
-                            document.getElementById('transactionId').value = details.id;
-                            // Submit the form
-                            document.getElementById('rentForm').submit();
-                        });
-                    }
-                }).render('#paypal-button-container');
+        async function handleStripePayment() {
+            const total = document.getElementById('modalTotalInput').value;
+            if (!total || total <= 0) {
+                alert("Please select valid dates first.");
+                return;
+            }
+            
+            document.getElementById('stripe-pay-btn').disabled = true;
+            document.getElementById('stripe-pay-btn').innerText = 'Processing...';
+            
+            const {token, error} = await stripe.createToken(cardElement);
+            
+            if (error) {
+                document.getElementById('card-errors').textContent = error.message;
+                document.getElementById('stripe-pay-btn').disabled = false;
+                document.getElementById('stripe-pay-btn').innerText = 'Pay Now';
+            } else {
+                // Payment Success - set transaction ID and submit form
+                document.getElementById('transactionId').value = token.id;
+                document.getElementById('rentForm').submit();
             }
         }
     </script>
