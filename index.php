@@ -155,7 +155,7 @@ $feedbacks = $conn->query($feedbacks_sql);
             <div class="flex justify-between items-center h-24">
                 <!-- Logo -->
                 <a href="index.php" class="flex items-center gap-3 group">
-                    <img src="Gemini_Generated_Image_3vfrwe3vfrwe3vfr.jpg" alt="Logo" class="w-12 h-12 object-contain filter brightness-0 invert group-hover:opacity-80 transition"/>
+                    <img src="./uploads/rent&go_logo.png" alt="Logo" class="w-12 h-12 object-contain filter brightness-0 invert group-hover:opacity-80 transition"/>
                 </a>
                 
                 <!-- Desktop Menu -->
@@ -375,14 +375,14 @@ $feedbacks = $conn->query($feedbacks_sql);
                 <!-- Brand Info -->
                 <div>
                     <div class="flex items-center gap-3 mb-8">
-                        <img src="Gemini_Generated_Image_3vfrwe3vfrwe3vfr.jpg" alt="Logo" class="w-10 h-10 object-contain filter brightness-0 invert"/>
+                        <img src="./uploads/rent&go_logo.png" alt="Logo" class="w-10 h-10 object-contain filter brightness-0 invert"/>
                         <span class="font-black text-2xl tracking-widest text-white">Hansi Travels</span>
                     </div>
                     <div class="space-y-6 text-sm text-gray-400">
                         <div>
-                            <p class="text-white font-bold uppercase tracking-widest mb-1">UAE - Dubai</p>
-                            <p>+971 21 658 359</p>
-                            <p>info-cars@gmail.com</p>
+                            <p class="text-white font-bold uppercase tracking-widest mb-1">LK- Colombo</p>
+                            <p>+94712345678</p>
+                            <p>info@hansitravels.com</p>
                         </div>
                         <div class="flex gap-4 pt-4">
                             <a href="#" class="hover:text-white transition"><i data-lucide="instagram" class="w-5 h-5"></i></a>
@@ -414,7 +414,6 @@ $feedbacks = $conn->query($feedbacks_sql);
             
             <div class="mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center text-xs text-gray-600">
                 <p>Copyright © 2024 Rent & Go</p>
-                <p>Developed by <span class="text-white">YourName</span></p>
             </div>
         </div>
     </div>
