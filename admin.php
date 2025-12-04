@@ -94,6 +94,9 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
                 <a href="index.php" class="flex items-center gap-2 text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg transition font-medium">
                     <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Home
                 </a>
+                <button onclick="toggleModal('customerModal')" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-indigo-700 transition">
+                    <i data-lucide="user-plus" class="inline w-5 h-5 mr-2"></i> Register Customer
+                </button>
             </div>
         </div>
 
@@ -274,8 +277,41 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
             </div>
         </div>
     </div>
+    <!-- Customer Registration Modal -->
+    <div id="customerModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white border border-gray-200 p-8 max-w-md w-full rounded-xl relative">
+            <button onclick="toggleModal('customerModal')" class="absolute top-4 right-4 text-gray-500 hover:text-black"><i data-lucide="x"></i></button>
+            <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Customer Registration</h2>
+            <form method="POST" enctype="multipart/form-data" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" name="first_name" placeholder="First Name" required class="border p-2 rounded">
+                    <input type="text" name="last_name" placeholder="Last Name" required class="border p-2 rounded">
+                </div>
+                <input type="text" name="phone" placeholder="Phone Number" required class="w-full border p-2 rounded">
+                <input type="email" name="email" placeholder="Email" required class="w-full border p-2 rounded">
+                <input type="text" name="nic_passport" placeholder="NIC/Passport Number" required class="w-full border p-2 rounded">
+                <input type="text" name="driver_license_number" placeholder="Driver License Number" required class="w-full border p-2 rounded">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Driver License Front Image</label>
+                    <input type="file" name="license_front" accept="image/*" required class="w-full border p-2 rounded">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Driver License Back Image</label>
+                    <input type="file" name="license_back" accept="image/*" required class="w-full border p-2 rounded">
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" name="register_customer" class="bg-indigo-600 text-white px-6 py-2 rounded font-bold hover:bg-indigo-700 transition">Register</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <script>
         lucide.createIcons();
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('flex');
+        }
     </script>
 </body>
 </html>
