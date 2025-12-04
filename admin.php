@@ -20,34 +20,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_vehicle'])) {
     $vehicle_number = $_POST['vehicle_number'];
     $type = $_POST['type'];
     $price = $_POST['price'];
-    
+
     // Handle Image Upload
-    $image_url = ''; // Default empty
+    $image_url = '';
+    $upload_error = '';
     if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
         $target_dir = "uploads/";
-        // Create dir if not exists
         if (!file_exists($target_dir)) {
             mkdir($target_dir, 0777, true);
         }
-        
         $file_extension = strtolower(pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION));
         $allowed_types = ['jpg', 'jpeg', 'png', 'webp'];
-        
         if (in_array($file_extension, $allowed_types)) {
-            // Generate unique name to prevent overwriting
             $new_filename = uniqid() . '.' . $file_extension;
             $target_file = $target_dir . $new_filename;
-            
             if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
                 $image_url = $target_file;
+            } else {
+                $upload_error = 'Image upload failed. Please try again.';
             }
+        } else {
+            $upload_error = 'Invalid image type. Allowed: jpg, jpeg, png, webp.';
         }
+    } elseif (isset($_FILES['image']) && $_FILES['image']['error'] != 4) {
+        $upload_error = 'Image upload error. Please select a valid file.';
     }
 
     // Use Prepared Statement for security
     $stmt = $conn->prepare("INSERT INTO vehicles (make, model, vehicle_number, type, price_per_day, seats, image_url) VALUES (?, ?, ?, ?, ?, 4, ?)");
     $stmt->bind_param("ssssds", $make, $model, $vehicle_number, $type, $price, $image_url);
-    
+
     if ($stmt->execute()) {
         header("Location: admin.php?msg=added");
         exit();
@@ -97,6 +99,9 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
 
         <?php if(isset($error)): ?>
             <div class="bg-red-100 text-red-700 p-4 rounded mb-4"><?php echo $error; ?></div>
+        <?php endif; ?>
+        <?php if(isset($upload_error) && $upload_error): ?>
+            <div class="bg-red-100 text-red-700 p-4 rounded mb-4"><?php echo $upload_error; ?></div>
         <?php endif; ?>
 
         <!-- Reporting & Analytics Summary -->
