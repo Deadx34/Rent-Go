@@ -158,7 +158,7 @@ $feedbacks = $conn->query($feedbacks_sql);
             <div class="flex justify-between items-center h-24">
                 <!-- Logo -->
                 <a href="index.php" class="flex items-center gap-3 group">
-                    <img src="./uploads/rent&go_logo.png" alt="Logo" class="w-12 h-12 object-contain filter brightness-0 invert group-hover:opacity-80 transition"/>
+                    <img src="./uploads/HansiTravels_logo.svg" alt="Logo" class="w-12 h-12 object-contain filter brightness-0 invert group-hover:opacity-80 transition"/>
                 </a>
                 
                 <!-- Desktop Menu -->
@@ -378,7 +378,7 @@ $feedbacks = $conn->query($feedbacks_sql);
                 <!-- Brand Info -->
                 <div>
                     <div class="flex items-center gap-3 mb-8">
-                        <img src="./uploads/rent&go_logo.png" alt="Logo" class="w-10 h-10 object-contain filter brightness-0 invert"/>
+                        <img src="./uploads/HansiTravels_logo.svg" alt="Logo" class="w-10 h-10 object-contain filter brightness-0 invert"/>
                         <span class="font-black text-2xl tracking-widest text-white">Hansi Travels</span>
                     </div>
                     <div class="space-y-6 text-sm text-gray-400">
