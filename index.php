@@ -7,6 +7,29 @@ error_reporting(E_ALL);
 session_start();
 require 'db_connect.php';
 
+// Handle Registration
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register_user'])) {
+    $name = $conn->real_escape_string($_POST['name']);
+    $email = $conn->real_escape_string($_POST['email']);
+    $password = $_POST['password'];
+    
+    $check = $conn->query("SELECT * FROM users WHERE email = '$email'");
+    if ($check->num_rows > 0) {
+        $error = "Email already registered";
+    } else {
+        $stmt = $conn->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, 'customer')");
+        $stmt->bind_param("sss", $name, $email, $password);
+        if ($stmt->execute()) {
+            $_SESSION['user_id'] = $stmt->insert_id;
+            $_SESSION['user_name'] = $name;
+            $_SESSION['user_role'] = 'customer';
+            header("Location: index.php");
+            exit();
+        }
+        $stmt->close();
+    }
+}
+
 // Handle Login
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login_user'])) {
     $email = $conn->real_escape_string($_POST['email']);
@@ -425,12 +448,29 @@ $feedbacks = $conn->query($feedbacks_sql);
     <div id="authModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-[#111] border border-white/10 p-10 max-w-md w-full relative">
             <button onclick="toggleModal('authModal')" class="absolute top-4 right-4 text-gray-500 hover:text-white"><i data-lucide="x"></i></button>
-            <h2 class="text-2xl font-bold mb-8 text-center text-white uppercase tracking-widest">Login</h2>
-            <form method="POST" class="space-y-4">
-                <input type="email" name="email" required placeholder="Email" class="w-full bg-black border border-white/20 p-4 text-white placeholder-gray-600 focus:border-white outline-none">
-                <input type="password" name="password" required placeholder="Password" class="w-full bg-black border border-white/20 p-4 text-white placeholder-gray-600 focus:border-white outline-none">
-                <button type="submit" name="login_user" class="w-full bg-white text-black font-bold py-4 uppercase tracking-widest hover:bg-gray-200 transition">Login</button>
-            </form>
+            
+            <!-- Login Form -->
+            <div id="loginForm">
+                <h2 class="text-2xl font-bold mb-8 text-center text-white uppercase tracking-widest">Login</h2>
+                <form method="POST" class="space-y-4">
+                    <input type="email" name="email" required placeholder="Email" class="w-full bg-black border border-white/20 p-4 text-white placeholder-gray-600 focus:border-white outline-none">
+                    <input type="password" name="password" required placeholder="Password" class="w-full bg-black border border-white/20 p-4 text-white placeholder-gray-600 focus:border-white outline-none">
+                    <button type="submit" name="login_user" class="w-full bg-white text-black font-bold py-4 uppercase tracking-widest hover:bg-gray-200 transition">Login</button>
+                </form>
+                <p class="text-center text-gray-400 mt-4 text-sm">Don't have an account? <button onclick="toggleAuthForm()" class="text-white underline">Register</button></p>
+            </div>
+            
+            <!-- Register Form -->
+            <div id="registerForm" class="hidden">
+                <h2 class="text-2xl font-bold mb-8 text-center text-white uppercase tracking-widest">Register</h2>
+                <form method="POST" class="space-y-4">
+                    <input type="text" name="name" required placeholder="Full Name" class="w-full bg-black border border-white/20 p-4 text-white placeholder-gray-600 focus:border-white outline-none">
+                    <input type="email" name="email" required placeholder="Email" class="w-full bg-black border border-white/20 p-4 text-white placeholder-gray-600 focus:border-white outline-none">
+                    <input type="password" name="password" required placeholder="Password" class="w-full bg-black border border-white/20 p-4 text-white placeholder-gray-600 focus:border-white outline-none">
+                    <button type="submit" name="register_user" class="w-full bg-white text-black font-bold py-4 uppercase tracking-widest hover:bg-gray-200 transition">Register</button>
+                </form>
+                <p class="text-center text-gray-400 mt-4 text-sm">Already have an account? <button onclick="toggleAuthForm()" class="text-white underline">Login</button></p>
+            </div>
         </div>
     </div>
 
@@ -477,6 +517,17 @@ $feedbacks = $conn->query($feedbacks_sql);
 
     <script>
         lucide.createIcons();
+        
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('flex');
+        }
+        
+        function toggleAuthForm() {
+            document.getElementById('loginForm').classList.toggle('hidden');
+            document.getElementById('registerForm').classList.toggle('hidden');
+        }
 
         // Initialize Flatpickr calendars for booking dates
         flatpickr('#startDate', {
