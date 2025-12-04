@@ -572,9 +572,14 @@ $feedbacks = $conn->query($feedbacks_sql);
             document.getElementById('modalVehicleId').value = id;
             document.getElementById('modalPrice').value = price;
 
-            // Reset calendars
+            // Reset calendars and form fields
             document.getElementById('startDate').value = '';
             document.getElementById('endDate').value = '';
+            document.getElementById('displayTotal').innerText = '$0.00';
+            document.getElementById('modalTotalInput').value = '';
+            if (document.getElementById('card-errors')) {
+                document.getElementById('card-errors').textContent = '';
+            }
             endPicker.set('minDate', 'today');
 
             toggleModal('rentModal');
