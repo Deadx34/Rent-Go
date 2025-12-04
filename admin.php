@@ -198,6 +198,27 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
                         Add to Fleet
                     </button>
                 </form>
+                    <form method="POST" enctype="multipart/form-data" class="space-y-4">
+                        <input type="text" name="driver_name" placeholder="Driver Name" required class="w-full border p-2 rounded">
+                        <input type="text" name="driver_phone" placeholder="Phone Number" required class="w-full border p-2 rounded">
+                        <input type="text" name="driver_license" placeholder="License Number" required class="w-full border p-2 rounded">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Gender</label>
+                            <select name="driver_gender" required class="w-full border p-2 rounded">
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Driver Photo</label>
+                            <input type="file" name="driver_photo" accept="image/*" class="w-full border p-2 rounded">
+                        </div>
+                        <div class="flex justify-end">
+                            <button type="submit" name="add_driver" class="bg-green-600 text-white px-6 py-2 rounded font-bold hover:bg-green-700 transition">Add Driver</button>
+                        </div>
+                    </form>
             </div>
 
             <!-- Data Lists -->
