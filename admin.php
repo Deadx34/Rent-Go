@@ -105,6 +105,40 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
             <div class="bg-red-100 text-red-700 p-4 rounded mb-4"><?php echo $error; ?></div>
         <?php endif; ?>
 
+        <!-- Reporting & Analytics Summary -->
+        <?php
+        // Reporting & Analytics quick stats
+        $total_rentals = $conn->query("SELECT COUNT(*) as count FROM rentals")->fetch_assoc()['count'];
+        $total_revenue = $conn->query("SELECT SUM(total_cost) as revenue FROM rentals WHERE status='active' OR status='returned'")->fetch_assoc()['revenue'] ?? 0;
+        $total_vehicles = $conn->query("SELECT COUNT(*) as count FROM vehicles")->fetch_assoc()['count'];
+        $active_rentals = $conn->query("SELECT COUNT(*) as count FROM rentals WHERE status='active'")->fetch_assoc()['count'];
+        $popular_vehicle = $conn->query("SELECT v.make, v.model, COUNT(*) as cnt FROM rentals r JOIN vehicles v ON r.vehicle_id = v.id GROUP BY r.vehicle_id ORDER BY cnt DESC LIMIT 1")->fetch_assoc();
+        ?>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow border">
+                <h2 class="font-bold text-lg mb-2">Total Rentals</h2>
+                <p class="text-3xl font-black text-blue-600"><?php echo $total_rentals; ?></p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow border">
+                <h2 class="font-bold text-lg mb-2">Total Revenue</h2>
+                <p class="text-3xl font-black text-green-600">$<?php echo number_format($total_revenue, 2); ?></p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow border">
+                <h2 class="font-bold text-lg mb-2">Vehicles in Fleet</h2>
+                <p class="text-3xl font-black text-purple-600"><?php echo $total_vehicles; ?></p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow border">
+                <h2 class="font-bold text-lg mb-2">Active Rentals</h2>
+                <p class="text-3xl font-black text-orange-600"><?php echo $active_rentals; ?></p>
+            </div>
+        </div>
+        <?php if ($popular_vehicle): ?>
+        <div class="bg-white p-6 rounded-xl shadow border mb-8">
+            <h2 class="font-bold text-lg mb-2">Most Popular Vehicle</h2>
+            <p class="text-xl font-bold text-gray-700"><?php echo htmlspecialchars($popular_vehicle['make'] . ' ' . $popular_vehicle['model']); ?></p>
+            <p class="text-sm text-gray-500">Rented <?php echo $popular_vehicle['cnt']; ?> times</p>
+        </div>
+        <?php endif; ?>
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Add Vehicle Form -->
             <div class="bg-white p-6 rounded-xl shadow-sm h-fit border border-gray-100">
