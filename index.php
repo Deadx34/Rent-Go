@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register_user'])) {
     
     $check = $conn->query("SELECT * FROM users WHERE email = '$email'");
     if ($check->num_rows > 0) {
-        $error = "Email already registered";
+        $error = "Email already registered. Please use a different email.";
     } else {
         $stmt = $conn->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, 'customer')");
         $stmt->bind_param("sss", $name, $email, $password);
@@ -23,8 +23,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register_user'])) {
             $_SESSION['user_id'] = $stmt->insert_id;
             $_SESSION['user_name'] = $name;
             $_SESSION['user_role'] = 'customer';
+            $_SESSION['success_message'] = "Registration successful! Welcome, $name!";
             header("Location: index.php");
             exit();
+        } else {
+            $error = "Registration failed. Please try again.";
         }
         $stmt->close();
     }
@@ -42,16 +45,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login_user'])) {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_name'] = $user['name'];
         $_SESSION['user_role'] = $user['role'];
+        $_SESSION['success_message'] = "Login successful! Welcome back, " . $user['name'] . "!";
         header("Location: index.php");
         exit();
     } else {
-        $error = "Invalid credentials";
+        $error = "Invalid email or password. Please try again.";
     }
 }
 
 // Handle Logout
 if (isset($_GET['logout'])) {
+    session_start();
+    $_SESSION = array();
     session_destroy();
+    session_start();
+    $_SESSION['success_message'] = "You have been logged out successfully.";
     header("Location: index.php");
     exit();
 }
@@ -244,8 +252,15 @@ $feedbacks = $conn->query($feedbacks_sql);
     </div>
 
     <!-- Messages -->
+    <?php 
+    // Display session success message
+    if(isset($_SESSION['success_message'])): 
+        $success = $_SESSION['success_message'];
+        unset($_SESSION['success_message']);
+    endif;
+    ?>
     <?php if(isset($success)): ?>
-        <div class="fixed top-24 right-4 z-50 bg-green-500 text-white px-6 py-4 rounded shadow-xl animate-bounce">
+        <div class="fixed top-24 right-4 z-50 bg-green-500 text-white px-6 py-4 rounded shadow-xl">
             <span class="block font-bold"><?php echo $success; ?></span>
         </div>
     <?php endif; ?>

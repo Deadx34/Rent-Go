@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rent & Go - Test Cases</title>
+    <style>
+        @media print {
+            @page {
+                margin: 1cm;
+            }
+            body {
+                margin: 0;
+            }
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        h2 {
+            text-align: center;
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .test-id {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .print-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 30px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .print-btn:hover {
+            background: #45a049;
+        }
+        @media print {
+            .print-btn {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Rent & Go - Vehicle Rental System</h1>
+        <h2>Test Cases Documentation</h2>
+        
+        <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Test ID</th>
+                    <th>Test Case</th>
+                    <th>Input Data</th>
+                    <th>Expected Result</th>
+                    <th>Pass/Fail</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="test-id">TC-001</td>
+                    <td>User Registration</td>
+                    <td>
+                        Name: "John Doe"<br>
+                        Email: "john@test.com"<br>
+                        Password: "test123"
+                    </td>
+                    <td>User account created successfully, auto-login, redirect to homepage</td>
+                    <td>Pass/Fail</td>
+                </tr>
+                <tr>
+                    <td class="test-id">TC-002</td>
+                    <td>User Login</td>
+                    <td>
+                        Email: "john@test.com"<br>
+                        Password: "test123"
+                    </td>
+                    <td>User logged in, session created, name displayed in navbar</td>
+                    <td>Pass/Fail</td>
+                </tr>
+                <tr>
+                    <td class="test-id">TC-003</td>
+                    <td>Vehicle Filter by Type</td>
+                    <td>Filter: "SUV"</td>
+                    <td>Only SUV vehicles displayed in fleet section</td>
+                    <td>Pass/Fail</td>
+                </tr>
+                <tr>
+                    <td class="test-id">TC-004</td>
+                    <td>Vehicle Sort by Price (Low to High)</td>
+                    <td>Sort: "Price Low"</td>
+                    <td>Vehicles displayed in ascending price order</td>
+                    <td>Pass/Fail</td>
+                </tr>
+                <tr>
+                    <td class="test-id">TC-005</td>
+                    <td>Booking with Date Selection</td>
+                    <td>
+                        Vehicle ID: 1<br>
+                        Start Date: "2025-12-10"<br>
+                        End Date: "2025-12-15"
+                    </td>
+                    <td>Total calculated correctly (5 days × price), booking modal shows amount</td>
+                    <td>Pass/Fail</td>
+                </tr>
+                <tr>
+                    <td class="test-id">TC-006</td>
+                    <td>Stripe Payment Processing</td>
+                    <td>
+                        Valid card details<br>
+                        Amount: $500
+                    </td>
+                    <td>Payment successful, transaction ID generated, booking confirmed</td>
+                    <td>Pass/Fail</td>
+                </tr>
+                <tr>
+                    <td class="test-id">TC-007</td>
+                    <td>Invoice Generation</td>
+                    <td>Rental ID: 1</td>
+                    <td>Invoice displays customer info, vehicle details, dates, and total cost</td>
+                    <td>Pass/Fail</td>
+                </tr>
+                <tr>
+                    <td class="test-id">TC-008</td>
+                    <td>Admin Add Vehicle</td>
+                    <td>
+                        Make: "Toyota"<br>
+                        Model: "Camry"<br>
+                        Price: $50<br>
+                        Image: car.jpg
+                    </td>
+                    <td>Vehicle added to database and displayed in fleet inventory</td>
+                    <td>Pass/Fail</td>
+                </tr>
+                <tr>
+                    <td class="test-id">TC-009</td>
+                    <td>Admin Mark Rental as Returned</td>
+                    <td>
+                        Rental ID: 1<br>
+                        Status: "active"
+                    </td>
+                    <td>Rental status updated to "returned", vehicle status set to "available"</td>
+                    <td>Pass/Fail</td>
+                </tr>
+                <tr>
+                    <td class="test-id">TC-010</td>
+                    <td>Admin Analytics Dashboard</td>
+                    <td>N/A</td>
+                    <td>Displays total rentals, revenue, active rentals, fleet count, and popular vehicle</td>
+                    <td>Pass/Fail</td>
+                </tr>
+                <tr>
+                    <td class="test-id">TC-011</td>
+                    <td>User Logout</td>
+                    <td>Logged in user clicks logout</td>
+                    <td>Session destroyed, user redirected to homepage, navbar shows login button</td>
+                    <td>Pass/Fail</td>
+                </tr>
+                <tr>
+                    <td class="test-id">TC-012</td>
+                    <td>Booking Without Login</td>
+                    <td>Non-logged user clicks "Rent Now"</td>
+                    <td>Booking modal shows "Login Required" button, redirects to login</td>
+                    <td>Pass/Fail</td>
+                </tr>
+                <tr>
+                    <td class="test-id">TC-013</td>
+                    <td>Date Picker Calendar Display</td>
+                    <td>Click on Pick-up date field</td>
+                    <td>Flatpickr calendar widget appears with dates from today onwards</td>
+                    <td>Pass/Fail</td>
+                </tr>
+                <tr>
+                    <td class="test-id">TC-014</td>
+                    <td>Invalid Date Selection</td>
+                    <td>Start Date: "2025-12-15"<br>End Date: "2025-12-10"</td>
+                    <td>System prevents selection or shows error for invalid date range</td>
+                    <td>Pass/Fail</td>
+                </tr>
+                <tr>
+                    <td class="test-id">TC-015</td>
+                    <td>Admin Add Driver</td>
+                    <td>
+                        Name: "Mike Smith"<br>
+                        Phone: "1234567890"<br>
+                        License: "DL12345"<br>
+                        Gender: "Male"<br>
+                        Photo: driver.jpg
+                    </td>
+                    <td>Driver added to database, visible in driver management</td>
+                    <td>Pass/Fail</td>
+                </tr>
+                <tr>
+                    <td class="test-id">TC-016</td>
+                    <td>Admin Delete Driver</td>
+                    <td>Driver ID: 1</td>
+                    <td>Driver removed from database, no longer appears in driver list</td>
+                    <td>Pass/Fail</td>
+                </tr>
+                <tr>
+                    <td class="test-id">TC-017</td>
+                    <td>Customer Registration Modal</td>
+                    <td>
+                        First Name: "Sarah"<br>
+                        Last Name: "Johnson"<br>
+                        Email: "sarah@test.com"<br>
+                        NIC: "123456789V"<br>
+                        License: "DL98765"<br>
+                        Front/Back Images
+                    </td>
+                    <td>Customer data saved, license images uploaded successfully</td>
+                    <td>Pass/Fail</td>
+                </tr>
+                <tr>
+                    <td class="test-id">TC-018</td>
+                    <td>Duplicate Email Registration</td>
+                    <td>Email: "john@test.com" (already exists)</td>
+                    <td>Error message: "Email already registered"</td>
+                    <td>Pass/Fail</td>
+                </tr>
+                <tr>
+                    <td class="test-id">TC-019</td>
+                    <td>Vehicle Image Upload</td>
+                    <td>
+                        Valid image file (JPG/PNG)<br>
+                        Size: &lt; 5MB
+                    </td>
+                    <td>Image uploaded to uploads/ folder, path saved in database, image displays in fleet</td>
+                    <td>Pass/Fail</td>
+                </tr>
+                <tr>
+                    <td class="test-id">TC-020</td>
+                    <td>Invalid File Type Upload</td>
+                    <td>File: document.pdf or script.exe</td>
+                    <td>Error message: "Invalid image type. Allowed: jpg, jpeg, png, webp"</td>
+                    <td>Pass/Fail</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+    </div>
+</body>
+</html>

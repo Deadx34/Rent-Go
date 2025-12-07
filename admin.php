@@ -59,6 +59,55 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_vehicle'])) {
     $stmt->close();
 }
 
+// Delete Vehicle
+if (isset($_GET['delete_vehicle'])) {
+    $id = intval($_GET['delete_vehicle']);
+    $conn->query("DELETE FROM vehicles WHERE id=$id");
+    $_SESSION['success_message'] = "Vehicle deleted successfully.";
+    header("Location: admin.php");
+    exit();
+}
+
+// Edit Vehicle Logic
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_vehicle'])) {
+    $id = intval($_POST['vehicle_id']);
+    $make = $_POST['make'];
+    $model = $_POST['model'];
+    $vehicle_number = $_POST['vehicle_number'];
+    $type = $_POST['type'];
+    $price = $_POST['price'];
+
+    // Handle Image Upload for edit
+    $image_url = $_POST['existing_image'];
+    if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
+        $target_dir = "uploads/";
+        if (!file_exists($target_dir)) {
+            mkdir($target_dir, 0777, true);
+        }
+        $file_extension = strtolower(pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION));
+        $allowed_types = ['jpg', 'jpeg', 'png', 'webp'];
+        if (in_array($file_extension, $allowed_types)) {
+            $new_filename = uniqid() . '.' . $file_extension;
+            $target_file = $target_dir . $new_filename;
+            if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
+                $image_url = $target_file;
+            }
+        }
+    }
+
+    $stmt = $conn->prepare("UPDATE vehicles SET make=?, model=?, vehicle_number=?, type=?, price_per_day=?, image_url=? WHERE id=?");
+    $stmt->bind_param("ssssdsi", $make, $model, $vehicle_number, $type, $price, $image_url, $id);
+
+    if ($stmt->execute()) {
+        $_SESSION['success_message'] = "Vehicle updated successfully.";
+        header("Location: admin.php");
+        exit();
+    } else {
+        $error = "Error updating vehicle: " . $conn->error;
+    }
+    $stmt->close();
+}
+
 // Return Vehicle (Simple toggle)
 if (isset($_GET['return'])) {
     $id = intval($_GET['return']); // Sanitize
@@ -100,6 +149,15 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
             </div>
         </div>
 
+        <?php 
+        if(isset($_SESSION['success_message'])): 
+            $success = $_SESSION['success_message'];
+            unset($_SESSION['success_message']);
+        endif;
+        ?>
+        <?php if(isset($success)): ?>
+            <div class="bg-green-100 text-green-700 p-4 rounded mb-4"><?php echo $success; ?></div>
+        <?php endif; ?>
         <?php if(isset($error)): ?>
             <div class="bg-red-100 text-red-700 p-4 rounded mb-4"><?php echo $error; ?></div>
         <?php endif; ?>
@@ -254,7 +312,7 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
                     </h2>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <?php while($v = $vehicles->fetch_assoc()): ?>
-                            <div class="flex items-center p-3 border rounded-lg gap-4">
+                            <div class="flex items-center p-3 border rounded-lg gap-4 relative">
                                 <div class="w-16 h-16 bg-gray-100 rounded-md flex-shrink-0 overflow-hidden">
                                     <?php if(!empty($v['image_url'])): ?>
                                         <img src="<?php echo htmlspecialchars($v['image_url']); ?>" alt="Car" class="w-full h-full object-cover">
@@ -264,10 +322,18 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
                                         </div>
                                     <?php endif; ?>
                                 </div>
-                                <div>
+                                <div class="flex-1">
                                     <h4 class="font-bold text-gray-900"><?php echo htmlspecialchars($v['make'] . ' ' . $v['model']); ?></h4>
                                     <p class="text-xs text-gray-500"><?php echo htmlspecialchars($v['vehicle_number']); ?></p>
                                     <p class="text-xs font-bold text-blue-600 mt-1">$<?php echo $v['price_per_day']; ?>/day</p>
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <button onclick="openEditVehicleModal(<?php echo htmlspecialchars(json_encode($v)); ?>)" class="text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 px-2 py-1 rounded border border-blue-200 transition">
+                                        <i data-lucide="edit" class="w-3 h-3 inline"></i>
+                                    </button>
+                                    <a href="admin.php?delete_vehicle=<?php echo $v['id']; ?>" onclick="return confirm('Are you sure you want to delete this vehicle?')" class="text-xs bg-red-50 text-red-600 hover:bg-red-100 px-2 py-1 rounded border border-red-200 transition text-center">
+                                        <i data-lucide="trash-2" class="w-3 h-3 inline"></i>
+                                    </a>
                                 </div>
                             </div>
                         <?php endwhile; ?>
@@ -275,6 +341,52 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
                 </div>
 
             </div>
+        </div>
+    </div>
+    <!-- Edit Vehicle Modal -->
+    <div id="editVehicleModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white border border-gray-200 p-8 max-w-md w-full rounded-xl relative">
+            <button onclick="toggleModal('editVehicleModal')" class="absolute top-4 right-4 text-gray-500 hover:text-black"><i data-lucide="x"></i></button>
+            <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Edit Vehicle</h2>
+            <form method="POST" enctype="multipart/form-data" class="space-y-4">
+                <input type="hidden" name="vehicle_id" id="edit_vehicle_id">
+                <input type="hidden" name="existing_image" id="edit_existing_image">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Make</label>
+                        <input type="text" name="make" id="edit_make" required class="w-full p-2 border border-gray-200 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Model</label>
+                        <input type="text" name="model" id="edit_model" required class="w-full p-2 border border-gray-200 rounded-lg">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Vehicle Number</label>
+                    <input type="text" name="vehicle_number" id="edit_vehicle_number" required class="w-full p-2 border border-gray-200 rounded-lg">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Type</label>
+                        <select name="type" id="edit_type" class="w-full p-2 border border-gray-200 rounded-lg bg-white">
+                            <option value="sedan">Sedan</option>
+                            <option value="suv">SUV</option>
+                            <option value="truck">Truck</option>
+                            <option value="motorcycle">Motorcycle</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Price/Day</label>
+                        <input type="number" name="price" id="edit_price" step="0.01" required class="w-full p-2 border border-gray-200 rounded-lg">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Vehicle Image (optional)</label>
+                    <input type="file" name="image" accept="image/*" class="w-full border p-2 rounded">
+                    <p class="text-xs text-gray-500 mt-1">Leave empty to keep existing image</p>
+                </div>
+                <button type="submit" name="edit_vehicle" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition">Update Vehicle</button>
+            </form>
         </div>
     </div>
     <!-- Customer Registration Modal -->
@@ -311,6 +423,18 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
             const modal = document.getElementById(id);
             modal.classList.toggle('hidden');
             modal.classList.toggle('flex');
+        }
+        
+        function openEditVehicleModal(vehicle) {
+            document.getElementById('edit_vehicle_id').value = vehicle.id;
+            document.getElementById('edit_make').value = vehicle.make;
+            document.getElementById('edit_model').value = vehicle.model;
+            document.getElementById('edit_vehicle_number').value = vehicle.vehicle_number;
+            document.getElementById('edit_type').value = vehicle.type;
+            document.getElementById('edit_price').value = vehicle.price_per_day;
+            document.getElementById('edit_existing_image').value = vehicle.image_url || '';
+            toggleModal('editVehicleModal');
+            lucide.createIcons();
         }
     </script>
 </body>
