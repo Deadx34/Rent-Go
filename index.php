@@ -260,13 +260,19 @@ $feedbacks = $conn->query($feedbacks_sql);
     endif;
     ?>
     <?php if(isset($success)): ?>
-        <div class="fixed top-24 right-4 z-50 bg-green-500 text-white px-6 py-4 rounded shadow-xl">
-            <span class="block font-bold"><?php echo $success; ?></span>
+        <div id="success-notification" class="fixed top-24 right-4 z-50 bg-green-500 text-white px-6 py-4 rounded shadow-xl">
+            <button onclick="document.getElementById('success-notification').remove()" class="absolute top-2 right-2 text-white hover:text-gray-200">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <span class="block font-bold pr-8"><?php echo $success; ?></span>
         </div>
     <?php endif; ?>
     <?php if(isset($error)): ?>
-        <div class="fixed top-24 right-4 z-50 bg-red-500 text-white px-6 py-4 rounded shadow-xl">
-            <span class="block font-bold"><?php echo $error; ?></span>
+        <div id="error-notification" class="fixed top-24 right-4 z-50 bg-red-500 text-white px-6 py-4 rounded shadow-xl">
+            <button onclick="document.getElementById('error-notification').remove()" class="absolute top-2 right-2 text-white hover:text-gray-200">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <span class="block font-bold pr-8"><?php echo $error; ?></span>
         </div>
     <?php endif; ?>
 
@@ -647,6 +653,16 @@ $feedbacks = $conn->query($feedbacks_sql);
                 document.getElementById('rentForm').submit();
             }
         }
+        
+        // Auto-fade notifications after 3 seconds
+        setTimeout(() => {
+            const notifications = document.querySelectorAll('[id$="-notification"]');
+            notifications.forEach(notification => {
+                notification.style.transition = 'opacity 0.5s ease-out';
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 500);
+            });
+        }, 3000);
     </script>
 </body>
 </html>

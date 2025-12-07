@@ -156,13 +156,28 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
         endif;
         ?>
         <?php if(isset($success)): ?>
-            <div class="bg-green-100 text-green-700 p-4 rounded mb-4"><?php echo $success; ?></div>
+            <div id="success-notification" class="bg-green-100 text-green-700 p-4 rounded mb-4 relative">
+                <button onclick="document.getElementById('success-notification').remove()" class="absolute top-2 right-2 text-green-700 hover:text-green-900">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+                <span class="block pr-8"><?php echo $success; ?></span>
+            </div>
         <?php endif; ?>
         <?php if(isset($error)): ?>
-            <div class="bg-red-100 text-red-700 p-4 rounded mb-4"><?php echo $error; ?></div>
+            <div id="error-notification" class="bg-red-100 text-red-700 p-4 rounded mb-4 relative">
+                <button onclick="document.getElementById('error-notification').remove()" class="absolute top-2 right-2 text-red-700 hover:text-red-900">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+                <span class="block pr-8"><?php echo $error; ?></span>
+            </div>
         <?php endif; ?>
         <?php if(isset($upload_error) && $upload_error): ?>
-            <div class="bg-red-100 text-red-700 p-4 rounded mb-4"><?php echo $upload_error; ?></div>
+            <div id="upload-error-notification" class="bg-red-100 text-red-700 p-4 rounded mb-4 relative">
+                <button onclick="document.getElementById('upload-error-notification').remove()" class="absolute top-2 right-2 text-red-700 hover:text-red-900">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+                <span class="block pr-8"><?php echo $upload_error; ?></span>
+            </div>
         <?php endif; ?>
 
         <!-- Reporting & Analytics Summary -->
@@ -436,6 +451,16 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
             toggleModal('editVehicleModal');
             lucide.createIcons();
         }
+        
+        // Auto-fade notifications after 3 seconds
+        setTimeout(() => {
+            const notifications = document.querySelectorAll('[id$="-notification"]');
+            notifications.forEach(notification => {
+                notification.style.transition = 'opacity 0.5s ease-out';
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 500);
+            });
+        }, 3000);
     </script>
 </body>
 </html>
