@@ -48,6 +48,9 @@ if (!$rental || $rental['user_id'] != $_SESSION['user_id']) {
         .btn:hover { background: #0056b3; }
         .btn-success { background: #28a745; }
         .btn-success:hover { background: #218838; }
+        .status-badge { display: inline-block; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 0.9em; margin-left: 10px; }
+        .status-paid { background: #d4edda; color: #155724; }
+        .status-pending { background: #fff3cd; color: #856404; }
         @media print { .btn-group { display: none; } }
     </style>
 </head>
@@ -72,6 +75,17 @@ if (!$rental || $rental['user_id'] != $_SESSION['user_id']) {
                 <?php echo htmlspecialchars($rental['user_name']); ?><br>
                 <?php echo htmlspecialchars($rental['email']); ?>
             </div>
+        </div>
+        
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+            <strong style="color: #007bff;">Payment Information</strong><br>
+            Method: <strong><?php echo $rental['payment_method'] === 'pay_at_pickup' ? 'Pay at Pickup' : 'Online Payment (Stripe)'; ?></strong>
+            <span class="status-badge <?php echo $rental['payment_status'] === 'paid' ? 'status-paid' : 'status-pending'; ?>">
+                <?php echo $rental['payment_status'] === 'paid' ? '✓ PAID' : '⏳ PAYMENT PENDING'; ?>
+            </span>
+            <?php if($rental['payment_status'] === 'pending'): ?>
+                <br><small style="color: #856404; margin-top: 5px; display: block;">⚠️ Please bring payment when collecting the vehicle</small>
+            <?php endif; ?>
         </div>
         
         <table>

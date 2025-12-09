@@ -74,9 +74,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirm_rental'])) {
         $end_date = $_POST['end_date'];
         $total = $_POST['total_cost'];
         $driver_id = isset($_POST['driver_id']) && $_POST['driver_id'] != '' ? intval($_POST['driver_id']) : null;
+        $payment_method = $_POST['payment_method'];
+        $payment_status = ($payment_method === 'pay_at_pickup') ? 'pending' : 'paid';
+        $transaction_id = isset($_POST['transaction_id']) ? $_POST['transaction_id'] : null;
         
-        $stmt = $conn->prepare("INSERT INTO rentals (user_id, vehicle_id, driver_id, start_date, end_date, total_cost) VALUES (?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("iiissd", $_SESSION['user_id'], $vehicle_id, $driver_id, $start_date, $end_date, $total);
+        $stmt = $conn->prepare("INSERT INTO rentals (user_id, vehicle_id, driver_id, start_date, end_date, total_cost, payment_method, payment_status, transaction_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("iiissdsss", $_SESSION['user_id'], $vehicle_id, $driver_id, $start_date, $end_date, $total, $payment_method, $payment_status, $transaction_id);
         
         if ($stmt->execute()) {
             $conn->query("UPDATE vehicles SET status = 'rented' WHERE id = $vehicle_id");
@@ -84,7 +87,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirm_rental'])) {
                 $conn->query("UPDATE drivers SET status = 'assigned' WHERE id = $driver_id");
             }
             $rental_id = $stmt->insert_id;
-            $success = "Payment Successful! Booking confirmed. <a href='invoice.php?id=$rental_id' style='color:#fff;text-decoration:underline;'>View Invoice</a>";
+            if ($payment_method === 'pay_at_pickup') {
+                $success = "Booking confirmed! Please pay LKR " . number_format($total, 2) . " at pickup. <a href='invoice.php?id=$rental_id' style='color:#fff;text-decoration:underline;'>View Invoice</a>";
+            } else {
+                $success = "Payment Successful! Booking confirmed. <a href='invoice.php?id=$rental_id' style='color:#fff;text-decoration:underline;'>View Invoice</a>";
+            }
         }
         $stmt->close();
     }
@@ -552,6 +559,26 @@ $feedbacks = $conn->query($feedbacks_sql);
                     </select>
                 </div>
                 
+                <div class="border-t border-white/10 pt-4 mt-4">
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Payment Method</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 p-3 border border-white/20 rounded cursor-pointer hover:bg-white/5 transition">
+                            <input type="radio" name="payment_method" value="stripe" checked onchange="togglePaymentMethod()" class="w-4 h-4">
+                            <div class="flex-1">
+                                <span class="text-white font-medium">Pay Online (Stripe)</span>
+                                <p class="text-xs text-gray-400">Secure payment with credit/debit card</p>
+                            </div>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 border border-white/20 rounded cursor-pointer hover:bg-white/5 transition">
+                            <input type="radio" name="payment_method" value="pay_at_pickup" onchange="togglePaymentMethod()" class="w-4 h-4">
+                            <div class="flex-1">
+                                <span class="text-white font-medium">Pay at Pickup</span>
+                                <p class="text-xs text-gray-400">Pay when you collect the vehicle</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
                 <div class="border-t border-white/10 pt-4 mt-4 mb-4">
                     <div class="flex justify-between items-center text-sm text-gray-400 mb-2">
                         <span>Vehicle Cost</span>
@@ -568,9 +595,15 @@ $feedbacks = $conn->query($feedbacks_sql);
                 </div>
 
                 <?php if(isset($_SESSION['user_id'])): ?>
-                    <div id="card-element" class="mt-6 p-3 bg-white border border-gray-300 rounded"></div>
-                    <div id="card-errors" class="text-red-500 text-sm mt-2"></div>
-                    <button type="button" id="stripe-pay-btn" onclick="handleStripePayment()" class="w-full bg-blue-600 text-white font-bold py-4 uppercase tracking-widest hover:bg-blue-700 transition mt-4">Pay Now</button>
+                    <div id="stripe-payment-section">
+                        <div id="card-element" class="mt-6 p-3 bg-white border border-gray-300 rounded"></div>
+                        <div id="card-errors" class="text-red-500 text-sm mt-2"></div>
+                        <button type="button" id="stripe-pay-btn" onclick="handleStripePayment()" class="w-full bg-blue-600 text-white font-bold py-4 uppercase tracking-widest hover:bg-blue-700 transition mt-4">Pay Now</button>
+                    </div>
+                    <div id="pickup-payment-section" style="display:none;">
+                        <button type="submit" name="confirm_rental" class="w-full bg-green-600 text-white font-bold py-4 uppercase tracking-widest hover:bg-green-700 transition mt-4">Confirm Booking</button>
+                        <p class="text-xs text-gray-400 text-center mt-2">You will pay at pickup location</p>
+                    </div>
                 <?php else: ?>
                     <button type="button" onclick="toggleModal('rentModal'); toggleModal('authModal');" class="w-full bg-gray-800 text-gray-300 font-bold py-4 uppercase tracking-widest hover:bg-gray-700 transition mt-4">Continue</button>
                 <?php endif; ?>
@@ -703,6 +736,20 @@ $feedbacks = $conn->query($feedbacks_sql);
                 driverSelect.value = '';
                 driverCostRow.style.display = 'none';
                 calculateTotal();
+            }
+        }
+        
+        function togglePaymentMethod() {
+            const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+            const stripeSection = document.getElementById('stripe-payment-section');
+            const pickupSection = document.getElementById('pickup-payment-section');
+            
+            if (paymentMethod === 'stripe') {
+                stripeSection.style.display = 'block';
+                pickupSection.style.display = 'none';
+            } else {
+                stripeSection.style.display = 'none';
+                pickupSection.style.display = 'block';
             }
         }
 
