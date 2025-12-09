@@ -124,11 +124,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['send_contact'])) {
 $current_filter = isset($_GET['filter']) ? $_GET['filter'] : 'all';
 $current_sort = isset($_GET['sort']) ? $_GET['sort'] : 'default';
 
-$sql = "SELECT * FROM vehicles WHERE status = 'available'";
+$sql = "SELECT * FROM vehicles";
 
 if ($current_filter != 'all') {
     $filter_safe = $conn->real_escape_string($current_filter);
-    $sql .= " AND type = '$filter_safe'";
+    $sql .= " WHERE type = '$filter_safe'";
 }
 
 if ($current_sort == 'asc') {
@@ -140,6 +140,36 @@ if ($current_sort == 'asc') {
 }
 
 $vehicles = $conn->query($sql);
+
+// Function to check if vehicle is available for given dates
+function isVehicleAvailable($vehicle_id, $start_date, $end_date, $conn) {
+    // Check for overlapping bookings
+    $check_sql = "SELECT COUNT(*) as count FROM rentals 
+                  WHERE vehicle_id = $vehicle_id 
+                  AND status != 'returned'
+                  AND status != 'cancelled'
+                  AND (
+                      (start_date <= '$end_date' AND end_date >= '$start_date')
+                  )";
+    $result = $conn->query($check_sql);
+    $row = $result->fetch_assoc();
+    return $row['count'] == 0;
+}
+
+// Function to get next available date for a vehicle
+function getNextAvailableDate($vehicle_id, $conn) {
+    $sql = "SELECT MAX(end_date) as next_date FROM rentals 
+            WHERE vehicle_id = $vehicle_id 
+            AND status != 'returned' 
+            AND status != 'cancelled'
+            AND end_date >= CURDATE()";
+    $result = $conn->query($sql);
+    $row = $result->fetch_assoc();
+    if ($row['next_date']) {
+        return date('Y-m-d', strtotime($row['next_date'] . ' +1 day'));
+    }
+    return date('Y-m-d');
+}
 
 // Fetch available drivers
 $available_drivers = $conn->query("SELECT * FROM drivers WHERE status = 'available' ORDER BY rate_per_day ASC");
@@ -354,10 +384,24 @@ $feedbacks = $conn->query($feedbacks_sql);
             <!-- Car Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
                 <?php if ($vehicles->num_rows > 0): ?>
-                    <?php while($row = $vehicles->fetch_assoc()): ?>
+                    <?php while($row = $vehicles->fetch_assoc()): 
+                        $is_currently_available = isVehicleAvailable($row['id'], date('Y-m-d'), date('Y-m-d', strtotime('+1 day')), $conn);
+                        $next_available = !$is_currently_available ? getNextAvailableDate($row['id'], $conn) : null;
+                    ?>
                         <div class="group relative">
                             <!-- Image Container -->
                             <div class="aspect-[16/9] overflow-hidden bg-[#111] mb-6 relative">
+                                <!-- Availability Badge -->
+                                <?php if(!$is_currently_available): ?>
+                                    <div class="absolute top-4 left-4 z-10 bg-yellow-500 text-black px-3 py-1 text-xs font-bold rounded">
+                                        BOOKED
+                                    </div>
+                                <?php else: ?>
+                                    <div class="absolute top-4 left-4 z-10 bg-green-500 text-white px-3 py-1 text-xs font-bold rounded">
+                                        AVAILABLE
+                                    </div>
+                                <?php endif; ?>
+                                
                                 <?php if(!empty($row['image_url'])): ?>
                                     <img src="<?php echo htmlspecialchars($row['image_url']); ?>" alt="<?php echo htmlspecialchars($row['model']); ?>" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100">
                                 <?php else: ?>
@@ -374,7 +418,7 @@ $feedbacks = $conn->query($feedbacks_sql);
                                             data-model="<?php echo htmlspecialchars($row['model']); ?>"
                                             data-price="<?php echo $row['price_per_day']; ?>"
                                             class="border border-white px-6 py-2 text-xs font-bold tracking-widest bg-white text-black hover:bg-black hover:text-white transition uppercase">
-                                        Rent Now
+                                        <?php echo !$is_currently_available ? 'Book for Later' : 'Rent Now'; ?>
                                     </button>
                                 </div>
                             </div>
@@ -386,17 +430,23 @@ $feedbacks = $conn->query($feedbacks_sql);
                                     <?php if(!empty($row['vehicle_number'])): ?>
                                         <p class="text-xs text-gray-600"><?php echo htmlspecialchars($row['vehicle_number']); ?></p>
                                     <?php endif; ?>
-                                    <div class="flex text-yellow-500 gap-1 text-xs mt-2">
-                                        <i data-lucide="star" class="w-3 h-3 fill-current"></i>
-                                        <i data-lucide="star" class="w-3 h-3 fill-current"></i>
-                                        <i data-lucide="star" class="w-3 h-3 fill-current"></i>
-                                        <i data-lucide="star" class="w-3 h-3 fill-current"></i>
-                                        <i data-lucide="star" class="w-3 h-3 fill-current"></i>
-                                    </div>
+                                    <?php if(!$is_currently_available && $next_available): ?>
+                                        <p class="text-xs text-yellow-400 mt-1">
+                                            ℹ️ Available from <?php echo date('M d, Y', strtotime($next_available)); ?>
+                                        </p>
+                                    <?php else: ?>
+                                        <div class="flex text-yellow-500 gap-1 text-xs mt-2">
+                                            <i data-lucide="star" class="w-3 h-3 fill-current"></i>
+                                            <i data-lucide="star" class="w-3 h-3 fill-current"></i>
+                                            <i data-lucide="star" class="w-3 h-3 fill-current"></i>
+                                            <i data-lucide="star" class="w-3 h-3 fill-current"></i>
+                                            <i data-lucide="star" class="w-3 h-3 fill-current"></i>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                                 <div class="text-right">
                                     <p class="text-sm text-gray-500 uppercase tracking-wider mb-1"><?php echo $row['type']; ?></p>
-                                    <p class="text-lg font-bold text-white">$<?php echo number_format($row['price_per_day']); ?></p>
+                                    <p class="text-lg font-bold text-white">LKR <?php echo number_format($row['price_per_day'], 2); ?></p>
                                 </div>
                             </div>
                         </div>
