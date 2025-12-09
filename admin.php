@@ -339,11 +339,11 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
                                 </div>
                                 <div class="flex-1">
                                     <h4 class="font-bold text-gray-900"><?php echo htmlspecialchars($v['make'] . ' ' . $v['model']); ?></h4>
-                                    <p class="text-xs text-gray-500"><?php echo htmlspecialchars($v['vehicle_number']); ?></p>
+                                    <p class="text-xs text-gray-500"><?php echo htmlspecialchars($v['vehicle_number'] ?? ''); ?></p>
                                     <p class="text-xs font-bold text-blue-600 mt-1">$<?php echo $v['price_per_day']; ?>/day</p>
                                 </div>
                                 <div class="flex flex-col gap-2">
-                                    <button onclick="openEditVehicleModal(<?php echo htmlspecialchars(json_encode($v)); ?>)" class="text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 px-2 py-1 rounded border border-blue-200 transition">
+                                    <button onclick="openEditVehicleModal(<?php echo htmlspecialchars(json_encode($v), ENT_QUOTES, 'UTF-8'); ?>)" class="text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 px-2 py-1 rounded border border-blue-200 transition">
                                         <i data-lucide="edit" class="w-3 h-3 inline"></i>
                                     </button>
                                     <a href="admin.php?delete_vehicle=<?php echo $v['id']; ?>" onclick="return confirm('Are you sure you want to delete this vehicle?')" class="text-xs bg-red-50 text-red-600 hover:bg-red-100 px-2 py-1 rounded border border-red-200 transition text-center">
