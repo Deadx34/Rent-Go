@@ -13,6 +13,11 @@ CREATE TABLE IF NOT EXISTS drivers (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Add missing columns if they don't exist (for existing tables)
+ALTER TABLE drivers ADD COLUMN IF NOT EXISTS rate_per_day DECIMAL(10,2) NOT NULL DEFAULT 0.00;
+ALTER TABLE drivers ADD COLUMN IF NOT EXISTS experience_years INT NOT NULL DEFAULT 0;
+ALTER TABLE drivers ADD COLUMN IF NOT EXISTS status ENUM('available', 'assigned') DEFAULT 'available';
+
 -- Update rentals table to include driver_id
 -- Check if column exists before adding
 ALTER TABLE rentals 
