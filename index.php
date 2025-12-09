@@ -546,7 +546,7 @@ $feedbacks = $conn->query($feedbacks_sql);
                         <option value="">Select a driver</option>
                         <?php while($driver = $available_drivers->fetch_assoc()): ?>
                             <option value="<?php echo $driver['id']; ?>" data-rate="<?php echo $driver['rate_per_day']; ?>">
-                                <?php echo htmlspecialchars($driver['name']); ?> - $<?php echo $driver['rate_per_day']; ?>/day (<?php echo $driver['experience_years']; ?> yrs exp)
+                                <?php echo htmlspecialchars($driver['name']); ?> - LKR <?php echo number_format($driver['rate_per_day'], 2); ?>/day (<?php echo $driver['experience_years']; ?> yrs exp)
                             </option>
                         <?php endwhile; ?>
                     </select>
@@ -555,15 +555,15 @@ $feedbacks = $conn->query($feedbacks_sql);
                 <div class="border-t border-white/10 pt-4 mt-4 mb-4">
                     <div class="flex justify-between items-center text-sm text-gray-400 mb-2">
                         <span>Vehicle Cost</span>
-                        <span id="vehicleCost">$0.00</span>
+                        <span id="vehicleCost">LKR 0.00</span>
                     </div>
                     <div class="flex justify-between items-center text-sm text-gray-400 mb-2" id="driverCostRow" style="display:none;">
                         <span>Driver Cost</span>
-                        <span id="driverCost">$0.00</span>
+                        <span id="driverCost">LKR 0.00</span>
                     </div>
                     <div class="flex justify-between items-center pt-2 border-t border-white/10">
                         <span class="text-sm text-gray-400 uppercase tracking-widest">Total</span>
-                        <span class="font-bold text-2xl text-white" id="displayTotal">$0.00</span>
+                        <span class="font-bold text-2xl text-white" id="displayTotal">LKR 0.00</span>
                     </div>
                 </div>
 
@@ -638,7 +638,7 @@ $feedbacks = $conn->query($feedbacks_sql);
             // Reset calendars and form fields
             document.getElementById('startDate').value = '';
             document.getElementById('endDate').value = '';
-            document.getElementById('displayTotal').innerText = '$0.00';
+            document.getElementById('displayTotal').innerText = 'LKR 0.00';
             document.getElementById('modalTotalInput').value = '';
             document.getElementById('needDriver').checked = false;
             document.getElementById('driverSelect').value = '';
@@ -681,9 +681,9 @@ $feedbacks = $conn->query($feedbacks_sql);
                 
                 const total = vehicleTotal + driverTotal;
                 
-                document.getElementById('vehicleCost').innerText = '$' + vehicleTotal.toFixed(2);
-                document.getElementById('driverCost').innerText = '$' + driverTotal.toFixed(2);
-                document.getElementById('displayTotal').innerText = '$' + total.toFixed(2);
+                document.getElementById('vehicleCost').innerText = 'LKR ' + vehicleTotal.toFixed(2);
+                document.getElementById('driverCost').innerText = 'LKR ' + driverTotal.toFixed(2);
+                document.getElementById('displayTotal').innerText = 'LKR ' + total.toFixed(2);
                 document.getElementById('modalTotalInput').value = total;
                 return total;
             }

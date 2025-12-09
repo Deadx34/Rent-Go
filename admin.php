@@ -432,7 +432,7 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
                                 <div class="flex-1">
                                     <h4 class="font-bold text-gray-900"><?php echo htmlspecialchars($v['make'] . ' ' . $v['model']); ?></h4>
                                     <p class="text-xs text-gray-500"><?php echo htmlspecialchars($v['vehicle_number'] ?? ''); ?></p>
-                                    <p class="text-xs font-bold text-blue-600 mt-1">$<?php echo $v['price_per_day']; ?>/day</p>
+                                    <p class="text-xs font-bold text-blue-600 mt-1">LKR <?php echo number_format($v['price_per_day'], 2); ?>/day</p>
                                 </div>
                                 <div class="flex flex-col gap-2">
                                     <button onclick="openEditVehicleModal(<?php echo htmlspecialchars(json_encode($v), ENT_QUOTES, 'UTF-8'); ?>)" class="text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 px-2 py-1 rounded border border-blue-200 transition">
@@ -481,7 +481,7 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
                             <input type="text" name="driver_license" required class="w-full p-2 border border-gray-200 rounded-lg">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Rate per Day ($)</label>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Rate per Day (LKR)</label>
                             <input type="number" name="driver_rate" step="0.01" required class="w-full p-2 border border-gray-200 rounded-lg">
                         </div>
                         <div>
@@ -521,7 +521,7 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
                                         <h4 class="font-bold text-gray-900"><?php echo htmlspecialchars($d['name']); ?></h4>
                                         <p class="text-xs text-gray-500">📞 <?php echo htmlspecialchars($d['phone']); ?></p>
                                         <p class="text-xs text-gray-500">🪪 <?php echo htmlspecialchars($d['license']); ?></p>
-                                        <p class="text-xs font-bold text-green-600 mt-1">$<?php echo $d['rate_per_day']; ?>/day | <?php echo $d['experience_years']; ?> yrs exp</p>
+                                        <p class="text-xs font-bold text-green-600 mt-1">LKR <?php echo number_format($d['rate_per_day'], 2); ?>/day | <?php echo $d['experience_years']; ?> yrs exp</p>
                                         <span class="inline-block text-xs px-2 py-1 rounded mt-1 <?php echo $d['status'] == 'available' ? 'bg-green-100 text-green-700' : 'bg-gray-300 text-gray-700'; ?>">
                                             <?php echo ucfirst($d['status']); ?>
                                         </span>
@@ -573,7 +573,7 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
                     <input type="text" name="driver_license" id="edit_driver_license" required class="w-full p-2 border border-gray-200 rounded-lg">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Rate per Day ($)</label>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Rate per Day (LKR)</label>
                     <input type="number" name="driver_rate" id="edit_driver_rate" step="0.01" required class="w-full p-2 border border-gray-200 rounded-lg">
                 </div>
                 <div>
@@ -618,7 +618,7 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Price/Day</label>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Price/Day (LKR)</label>
                         <input type="number" name="price" id="edit_price" step="0.01" required class="w-full p-2 border border-gray-200 rounded-lg">
                     </div>
                 </div>
