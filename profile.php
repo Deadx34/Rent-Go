@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 session_start();
 require 'db_connect.php';
 
@@ -10,30 +13,47 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 // Get user details
-$user_result = $conn->query("SELECT * FROM users WHERE id = $user_id");
+$stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$user_result = $stmt->get_result();
 $user = $user_result->fetch_assoc();
+$stmt->close();
+
+if (!$user) {
+    session_destroy();
+    header("Location: index.php");
+    exit();
+}
 
 // Get user's rentals with invoices
-$rentals_result = $conn->query("SELECT r.*, v.make, v.model, v.vehicle_number, v.image_url, d.name as driver_name 
+$stmt = $conn->prepare("SELECT r.*, v.make, v.model, v.vehicle_number, v.image_url, d.name as driver_name 
     FROM rentals r 
     JOIN vehicles v ON r.vehicle_id = v.id 
     LEFT JOIN drivers d ON r.driver_id = d.id 
-    WHERE r.user_id = $user_id 
+    WHERE r.user_id = ? 
     ORDER BY r.created_at DESC");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$rentals_result = $stmt->get_result();
+$stmt->close();
 
 // Handle profile update
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
-    $name = $conn->real_escape_string($_POST['name']);
-    $email = $conn->real_escape_string($_POST['email']);
-    $phone = isset($_POST['phone']) ? $conn->real_escape_string($_POST['phone']) : '';
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+    $phone = isset($_POST['phone']) ? $_POST['phone'] : '';
     
-    $update_sql = "UPDATE users SET name='$name', email='$email'";
     if (!empty($phone)) {
-        $update_sql .= ", phone='$phone'";
+        $stmt = $conn->prepare("UPDATE users SET name=?, email=?, phone=? WHERE id=?");
+        $stmt->bind_param("sssi", $name, $email, $phone, $user_id);
+    } else {
+        $stmt = $conn->prepare("UPDATE users SET name=?, email=? WHERE id=?");
+        $stmt->bind_param("ssi", $name, $email, $user_id);
     }
-    $update_sql .= " WHERE id=$user_id";
     
-    if ($conn->query($update_sql)) {
+    if ($stmt->execute()) {
+        $stmt->close();
         $_SESSION['user_name'] = $name;
         $_SESSION['success_message'] = "Profile updated successfully!";
         header("Location: profile.php");
@@ -51,7 +71,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
     
     if ($user['password'] === $current_password) {
         if ($new_password === $confirm_password) {
-            $conn->query("UPDATE users SET password='$new_password' WHERE id=$user_id");
+            $stmt = $conn->prepare("UPDATE users SET password=? WHERE id=?");
+            $stmt->bind_param("si", $new_password, $user_id);
+            $stmt->execute();
+            $stmt->close();
             $_SESSION['success_message'] = "Password changed successfully!";
             header("Location: profile.php");
             exit();
