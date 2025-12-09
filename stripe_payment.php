@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['stripeToken'])) {
     try {
         $charge = \Stripe\Charge::create([
             'amount' => $amount,
-            'currency' => 'usd',
+            'currency' => 'lkr',
             'description' => $description,
             'source' => $token,
         ]);
