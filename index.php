@@ -224,7 +224,10 @@ $feedbacks = $conn->query($feedbacks_sql);
                         <?php if($_SESSION['user_role'] == 'admin'): ?>
                             <a href="admin.php" class="text-xs font-bold text-white border border-white/30 px-3 py-1 rounded hover:bg-white hover:text-black transition">ADMIN</a>
                         <?php endif; ?>
-                        <a href="index.php?logout=true" class="text-gray-400 hover:text-white transition">
+                        <a href="profile.php" class="text-white hover:text-gray-300 transition flex items-center gap-1" title="My Profile">
+                            <i data-lucide="user" class="w-5 h-5"></i>
+                        </a>
+                        <a href="index.php?logout=true" class="text-gray-400 hover:text-white transition" title="Logout">
                             <i data-lucide="log-out" class="w-5 h-5"></i>
                         </a>
                     <?php else: ?>
