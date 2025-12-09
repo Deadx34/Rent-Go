@@ -76,8 +76,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_driver'])) {
     $rate_per_day = floatval($_POST['driver_rate']);
     $experience_years = intval($_POST['driver_experience']);
     
-    $stmt = $conn->prepare("INSERT INTO drivers (name, phone, license, rate_per_day, experience_years, status) VALUES (?, ?, ?, ?, ?, 'available')");
-    $stmt->bind_param("sssdi", $name, $phone, $license, $rate_per_day, $experience_years);
+    // Handle Photo Upload
+    $photo_url = '';
+    if (isset($_FILES['driver_photo']) && $_FILES['driver_photo']['error'] == 0) {
+        $target_dir = "uploads/drivers/";
+        if (!file_exists($target_dir)) {
+            mkdir($target_dir, 0777, true);
+        }
+        $file_extension = strtolower(pathinfo($_FILES["driver_photo"]["name"], PATHINFO_EXTENSION));
+        $allowed_types = ['jpg', 'jpeg', 'png', 'webp'];
+        if (in_array($file_extension, $allowed_types)) {
+            $new_filename = uniqid() . '.' . $file_extension;
+            $target_file = $target_dir . $new_filename;
+            if (move_uploaded_file($_FILES["driver_photo"]["tmp_name"], $target_file)) {
+                $photo_url = $target_file;
+            }
+        }
+    }
+    
+    $stmt = $conn->prepare("INSERT INTO drivers (name, phone, license, rate_per_day, experience_years, photo_url, status) VALUES (?, ?, ?, ?, ?, ?, 'available')");
+    $stmt->bind_param("ssssis", $name, $phone, $license, $rate_per_day, $experience_years, $photo_url);
     
     if ($stmt->execute()) {
         $_SESSION['success_message'] = "Driver added successfully.";
@@ -98,8 +116,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_driver'])) {
     $rate_per_day = floatval($_POST['driver_rate']);
     $experience_years = intval($_POST['driver_experience']);
     
-    $stmt = $conn->prepare("UPDATE drivers SET name=?, phone=?, license=?, rate_per_day=?, experience_years=? WHERE id=?");
-    $stmt->bind_param("sssdii", $name, $phone, $license, $rate_per_day, $experience_years, $id);
+    // Handle Photo Upload
+    $photo_url = $_POST['existing_photo'];
+    if (isset($_FILES['driver_photo']) && $_FILES['driver_photo']['error'] == 0) {
+        $target_dir = "uploads/drivers/";
+        if (!file_exists($target_dir)) {
+            mkdir($target_dir, 0777, true);
+        }
+        $file_extension = strtolower(pathinfo($_FILES["driver_photo"]["name"], PATHINFO_EXTENSION));
+        $allowed_types = ['jpg', 'jpeg', 'png', 'webp'];
+        if (in_array($file_extension, $allowed_types)) {
+            $new_filename = uniqid() . '.' . $file_extension;
+            $target_file = $target_dir . $new_filename;
+            if (move_uploaded_file($_FILES["driver_photo"]["tmp_name"], $target_file)) {
+                $photo_url = $target_file;
+            }
+        }
+    }
+    
+    $stmt = $conn->prepare("UPDATE drivers SET name=?, phone=?, license=?, rate_per_day=?, experience_years=?, photo_url=? WHERE id=?");
+    $stmt->bind_param("ssssdsi", $name, $phone, $license, $rate_per_day, $experience_years, $photo_url, $id);
     
     if ($stmt->execute()) {
         $_SESSION['success_message'] = "Driver updated successfully.";
@@ -427,7 +463,11 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
                         <i data-lucide="user-plus" class="w-5 h-5 text-green-600"></i>
                         Add New Driver
                     </h3>
-                    <form method="POST" class="space-y-3" id="addDriverForm">
+                    <form method="POST" enctype="multipart/form-data" class="space-y-3" id="addDriverForm">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Profile Photo</label>
+                            <input type="file" name="driver_photo" accept="image/*" class="w-full p-2 border border-gray-200 rounded-lg">
+                        </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Full Name</label>
                             <input type="text" name="driver_name" required class="w-full p-2 border border-gray-200 rounded-lg">
@@ -467,14 +507,25 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
                         ?>
                         <div class="border rounded-lg p-3 bg-gray-50">
                             <div class="flex justify-between items-start">
-                                <div class="flex-1">
-                                    <h4 class="font-bold text-gray-900"><?php echo htmlspecialchars($d['name']); ?></h4>
-                                    <p class="text-xs text-gray-500">📞 <?php echo htmlspecialchars($d['phone']); ?></p>
-                                    <p class="text-xs text-gray-500">🪪 <?php echo htmlspecialchars($d['license']); ?></p>
-                                    <p class="text-xs font-bold text-green-600 mt-1">$<?php echo $d['rate_per_day']; ?>/day | <?php echo $d['experience_years']; ?> yrs exp</p>
-                                    <span class="inline-block text-xs px-2 py-1 rounded mt-1 <?php echo $d['status'] == 'available' ? 'bg-green-100 text-green-700' : 'bg-gray-300 text-gray-700'; ?>">
-                                        <?php echo ucfirst($d['status']); ?>
-                                    </span>
+                                <div class="flex gap-3 flex-1">
+                                    <div class="w-16 h-16 bg-gray-200 rounded-full flex-shrink-0 overflow-hidden">
+                                        <?php if(!empty($d['photo_url'])): ?>
+                                            <img src="<?php echo htmlspecialchars($d['photo_url']); ?>" alt="Driver" class="w-full h-full object-cover">
+                                        <?php else: ?>
+                                            <div class="w-full h-full flex items-center justify-center text-gray-400">
+                                                <i data-lucide="user" class="w-8 h-8"></i>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="font-bold text-gray-900"><?php echo htmlspecialchars($d['name']); ?></h4>
+                                        <p class="text-xs text-gray-500">📞 <?php echo htmlspecialchars($d['phone']); ?></p>
+                                        <p class="text-xs text-gray-500">🪪 <?php echo htmlspecialchars($d['license']); ?></p>
+                                        <p class="text-xs font-bold text-green-600 mt-1">$<?php echo $d['rate_per_day']; ?>/day | <?php echo $d['experience_years']; ?> yrs exp</p>
+                                        <span class="inline-block text-xs px-2 py-1 rounded mt-1 <?php echo $d['status'] == 'available' ? 'bg-green-100 text-green-700' : 'bg-gray-300 text-gray-700'; ?>">
+                                            <?php echo ucfirst($d['status']); ?>
+                                        </span>
+                                    </div>
                                 </div>
                                 <div class="flex gap-2">
                                     <button onclick="openEditDriverModal(<?php echo htmlspecialchars(json_encode($d), ENT_QUOTES, 'UTF-8'); ?>)" class="text-blue-600 hover:bg-blue-50 p-2 rounded">
@@ -498,8 +549,17 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
         <div class="bg-white border border-gray-200 p-8 max-w-md w-full rounded-xl relative">
             <button onclick="toggleModal('editDriverModal')" class="absolute top-4 right-4 text-gray-500 hover:text-black"><i data-lucide="x"></i></button>
             <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Edit Driver</h2>
-            <form method="POST" class="space-y-4">
+            <form method="POST" enctype="multipart/form-data" class="space-y-4">
                 <input type="hidden" name="driver_id" id="edit_driver_id">
+                <input type="hidden" name="existing_photo" id="edit_existing_photo">
+                <div id="current_photo_container" class="hidden">
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Current Photo</label>
+                    <img id="current_photo_preview" src="" class="w-24 h-24 rounded-full object-cover mx-auto mb-2">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Change Photo (optional)</label>
+                    <input type="file" name="driver_photo" accept="image/*" class="w-full p-2 border border-gray-200 rounded-lg">
+                </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Full Name</label>
                     <input type="text" name="driver_name" id="edit_driver_name" required class="w-full p-2 border border-gray-200 rounded-lg">
@@ -626,6 +686,16 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
             document.getElementById('edit_driver_license').value = driver.license;
             document.getElementById('edit_driver_rate').value = driver.rate_per_day;
             document.getElementById('edit_driver_experience').value = driver.experience_years;
+            document.getElementById('edit_existing_photo').value = driver.photo_url || '';
+            
+            // Show current photo if exists
+            if (driver.photo_url) {
+                document.getElementById('current_photo_preview').src = driver.photo_url;
+                document.getElementById('current_photo_container').classList.remove('hidden');
+            } else {
+                document.getElementById('current_photo_container').classList.add('hidden');
+            }
+            
             toggleModal('driverModal');
             toggleModal('editDriverModal');
             lucide.createIcons();
