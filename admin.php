@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_driver'])) {
     $rate_per_day = floatval($_POST['driver_rate']);
     $experience_years = intval($_POST['driver_experience']);
     
-    $stmt = $conn->prepare("INSERT INTO drivers (name, phone, license_number, rate_per_day, experience_years, status) VALUES (?, ?, ?, ?, ?, 'available')");
+    $stmt = $conn->prepare("INSERT INTO drivers (name, phone, license, rate_per_day, experience_years, status) VALUES (?, ?, ?, ?, ?, 'available')");
     $stmt->bind_param("sssdi", $name, $phone, $license, $rate_per_day, $experience_years);
     
     if ($stmt->execute()) {
@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_driver'])) {
     $rate_per_day = floatval($_POST['driver_rate']);
     $experience_years = intval($_POST['driver_experience']);
     
-    $stmt = $conn->prepare("UPDATE drivers SET name=?, phone=?, license_number=?, rate_per_day=?, experience_years=? WHERE id=?");
+    $stmt = $conn->prepare("UPDATE drivers SET name=?, phone=?, license=?, rate_per_day=?, experience_years=? WHERE id=?");
     $stmt->bind_param("sssdii", $name, $phone, $license, $rate_per_day, $experience_years, $id);
     
     if ($stmt->execute()) {
@@ -470,7 +470,7 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
                                 <div class="flex-1">
                                     <h4 class="font-bold text-gray-900"><?php echo htmlspecialchars($d['name']); ?></h4>
                                     <p class="text-xs text-gray-500">📞 <?php echo htmlspecialchars($d['phone']); ?></p>
-                                    <p class="text-xs text-gray-500">🪪 <?php echo htmlspecialchars($d['license_number']); ?></p>
+                                    <p class="text-xs text-gray-500">🪪 <?php echo htmlspecialchars($d['license']); ?></p>
                                     <p class="text-xs font-bold text-green-600 mt-1">$<?php echo $d['rate_per_day']; ?>/day | <?php echo $d['experience_years']; ?> yrs exp</p>
                                     <span class="inline-block text-xs px-2 py-1 rounded mt-1 <?php echo $d['status'] == 'available' ? 'bg-green-100 text-green-700' : 'bg-gray-300 text-gray-700'; ?>">
                                         <?php echo ucfirst($d['status']); ?>
@@ -623,7 +623,7 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
             document.getElementById('edit_driver_id').value = driver.id;
             document.getElementById('edit_driver_name').value = driver.name;
             document.getElementById('edit_driver_phone').value = driver.phone;
-            document.getElementById('edit_driver_license').value = driver.license_number;
+            document.getElementById('edit_driver_license').value = driver.license;
             document.getElementById('edit_driver_rate').value = driver.rate_per_day;
             document.getElementById('edit_driver_experience').value = driver.experience_years;
             toggleModal('driverModal');
