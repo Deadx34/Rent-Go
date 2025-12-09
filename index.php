@@ -284,8 +284,8 @@ $feedbacks = $conn->query($feedbacks_sql);
                     <span class="text-sm font-medium tracking-[0.2em] text-gray-300">PREMIUM CAR RENTAL</span>
                 </div>
                 <h1 class="text-5xl md:text-7xl font-black text-white leading-tight mb-6 text-glow">
-                    LUXURY <br/>
-                    LIFESTYLE <br/>
+                    HANSI <br/>
+                    TRAVELS <br/>
                     RENTALS
                 </h1>
                 <p class="text-lg text-gray-400 mb-10 max-w-xl font-light">

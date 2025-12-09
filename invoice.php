@@ -59,8 +59,8 @@ if (!$rental || $rental['user_id'] != $_SESSION['user_id']) {
         <div class="header">
             <h1>INVOICE</h1>
             <div class="company-info">
-                <strong>Rent & Go - Premium Car Rental</strong><br>
-                Email: info@rentandgo.com | Phone: +94 77 123 4567
+                <strong>Hansi Travels - Premium Car Rental</strong><br>
+                Email: info@hansitravels.com | Phone: +94 77 123 4567
             </div>
         </div>
         
@@ -130,8 +130,8 @@ if (!$rental || $rental['user_id'] != $_SESSION['user_id']) {
         </div>
         
         <div class="footer">
-            <p>Thank you for choosing Rent & Go!<br>
-            For any inquiries, please contact us at info@rentandgo.com</p>
+            <p>Thank you for choosing Hansi Travels!<br>
+            For any inquiries, please contact us at info@hansitravels.com</p>
         </div>
     </div>
     

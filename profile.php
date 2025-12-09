@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile - Rent & Go</title>
+    <title>My Profile - Hansi Travels</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
     <!-- Navigation -->
     <nav class="bg-black text-white p-4 sticky top-0 z-40 border-b border-white/10">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <a href="index.php" class="text-2xl font-black tracking-wider">RENT<span class="text-blue-500">&</span>GO</a>
+            <a href="index.php" class="text-2xl font-black tracking-wider">HANSI<span class="text-blue-500">TRAVELS</span></a>
             <div class="flex gap-4 items-center">
                 <span class="text-gray-400">Welcome, <?php echo htmlspecialchars($user['name']); ?></span>
                 <a href="index.php" class="px-4 py-2 bg-white/10 rounded hover:bg-white/20 transition">Home</a>
