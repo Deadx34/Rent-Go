@@ -68,6 +68,58 @@ if (isset($_GET['delete_vehicle'])) {
     exit();
 }
 
+// Add Driver
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_driver'])) {
+    $name = $_POST['driver_name'];
+    $phone = $_POST['driver_phone'];
+    $license = $_POST['driver_license'];
+    $rate_per_day = floatval($_POST['driver_rate']);
+    $experience_years = intval($_POST['driver_experience']);
+    
+    $stmt = $conn->prepare("INSERT INTO drivers (name, phone, license_number, rate_per_day, experience_years, status) VALUES (?, ?, ?, ?, ?, 'available')");
+    $stmt->bind_param("sssdi", $name, $phone, $license, $rate_per_day, $experience_years);
+    
+    if ($stmt->execute()) {
+        $_SESSION['success_message'] = "Driver added successfully.";
+        header("Location: admin.php");
+        exit();
+    } else {
+        $error = "Error adding driver: " . $conn->error;
+    }
+    $stmt->close();
+}
+
+// Edit Driver
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_driver'])) {
+    $id = intval($_POST['driver_id']);
+    $name = $_POST['driver_name'];
+    $phone = $_POST['driver_phone'];
+    $license = $_POST['driver_license'];
+    $rate_per_day = floatval($_POST['driver_rate']);
+    $experience_years = intval($_POST['driver_experience']);
+    
+    $stmt = $conn->prepare("UPDATE drivers SET name=?, phone=?, license_number=?, rate_per_day=?, experience_years=? WHERE id=?");
+    $stmt->bind_param("sssdii", $name, $phone, $license, $rate_per_day, $experience_years, $id);
+    
+    if ($stmt->execute()) {
+        $_SESSION['success_message'] = "Driver updated successfully.";
+        header("Location: admin.php");
+        exit();
+    } else {
+        $error = "Error updating driver: " . $conn->error;
+    }
+    $stmt->close();
+}
+
+// Delete Driver
+if (isset($_GET['delete_driver'])) {
+    $id = intval($_GET['delete_driver']);
+    $conn->query("DELETE FROM drivers WHERE id=$id");
+    $_SESSION['success_message'] = "Driver deleted successfully.";
+    header("Location: admin.php");
+    exit();
+}
+
 // Edit Vehicle Logic
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_vehicle'])) {
     $id = intval($_POST['vehicle_id']);
@@ -118,6 +170,7 @@ if (isset($_GET['return'])) {
 }
 
 $vehicles = $conn->query("SELECT * FROM vehicles ORDER BY id DESC");
+$drivers = $conn->query("SELECT * FROM drivers ORDER BY id DESC");
 $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.vehicle_number FROM rentals r JOIN users u ON r.user_id = u.id JOIN vehicles v ON r.vehicle_id = v.id ORDER BY r.id DESC");
 ?>
 
@@ -143,6 +196,9 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
                 <a href="index.php" class="flex items-center gap-2 text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg transition font-medium">
                     <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Home
                 </a>
+                <button onclick="toggleModal('driverModal')" class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-green-700 transition">
+                    <i data-lucide="user-check" class="inline w-5 h-5 mr-2"></i> Manage Drivers
+                </button>
                 <button onclick="toggleModal('customerModal')" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-indigo-700 transition">
                     <i data-lucide="user-plus" class="inline w-5 h-5 mr-2"></i> Register Customer
                 </button>
@@ -358,6 +414,117 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
             </div>
         </div>
     </div>
+    <!-- Driver Management Modal -->
+    <div id="driverModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white border border-gray-200 p-8 max-w-4xl w-full rounded-xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="toggleModal('driverModal')" class="absolute top-4 right-4 text-gray-500 hover:text-black"><i data-lucide="x"></i></button>
+            <h2 class="text-2xl font-bold mb-6 text-gray-800">Driver Management</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Add Driver Form -->
+                <div class="border rounded-lg p-4">
+                    <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                        <i data-lucide="user-plus" class="w-5 h-5 text-green-600"></i>
+                        Add New Driver
+                    </h3>
+                    <form method="POST" class="space-y-3" id="addDriverForm">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Full Name</label>
+                            <input type="text" name="driver_name" required class="w-full p-2 border border-gray-200 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Phone Number</label>
+                            <input type="text" name="driver_phone" required class="w-full p-2 border border-gray-200 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">License Number</label>
+                            <input type="text" name="driver_license" required class="w-full p-2 border border-gray-200 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Rate per Day ($)</label>
+                            <input type="number" name="driver_rate" step="0.01" required class="w-full p-2 border border-gray-200 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Experience (Years)</label>
+                            <input type="number" name="driver_experience" required class="w-full p-2 border border-gray-200 rounded-lg">
+                        </div>
+                        <button type="submit" name="add_driver" class="w-full bg-green-600 text-white font-bold py-2 rounded-lg hover:bg-green-700 transition">
+                            Add Driver
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Driver List -->
+                <div class="border rounded-lg p-4">
+                    <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                        <i data-lucide="users" class="w-5 h-5 text-blue-600"></i>
+                        Current Drivers
+                    </h3>
+                    <div class="space-y-3 max-h-96 overflow-y-auto">
+                        <?php 
+                        $drivers->data_seek(0);
+                        while($d = $drivers->fetch_assoc()): 
+                        ?>
+                        <div class="border rounded-lg p-3 bg-gray-50">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-gray-900"><?php echo htmlspecialchars($d['name']); ?></h4>
+                                    <p class="text-xs text-gray-500">📞 <?php echo htmlspecialchars($d['phone']); ?></p>
+                                    <p class="text-xs text-gray-500">🪪 <?php echo htmlspecialchars($d['license_number']); ?></p>
+                                    <p class="text-xs font-bold text-green-600 mt-1">$<?php echo $d['rate_per_day']; ?>/day | <?php echo $d['experience_years']; ?> yrs exp</p>
+                                    <span class="inline-block text-xs px-2 py-1 rounded mt-1 <?php echo $d['status'] == 'available' ? 'bg-green-100 text-green-700' : 'bg-gray-300 text-gray-700'; ?>">
+                                        <?php echo ucfirst($d['status']); ?>
+                                    </span>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="openEditDriverModal(<?php echo htmlspecialchars(json_encode($d), ENT_QUOTES, 'UTF-8'); ?>)" class="text-blue-600 hover:bg-blue-50 p-2 rounded">
+                                        <i data-lucide="edit" class="w-4 h-4"></i>
+                                    </button>
+                                    <a href="admin.php?delete_driver=<?php echo $d['id']; ?>" onclick="return confirm('Delete this driver?')" class="text-red-600 hover:bg-red-50 p-2 rounded">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endwhile; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Driver Modal -->
+    <div id="editDriverModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white border border-gray-200 p-8 max-w-md w-full rounded-xl relative">
+            <button onclick="toggleModal('editDriverModal')" class="absolute top-4 right-4 text-gray-500 hover:text-black"><i data-lucide="x"></i></button>
+            <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Edit Driver</h2>
+            <form method="POST" class="space-y-4">
+                <input type="hidden" name="driver_id" id="edit_driver_id">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Full Name</label>
+                    <input type="text" name="driver_name" id="edit_driver_name" required class="w-full p-2 border border-gray-200 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Phone Number</label>
+                    <input type="text" name="driver_phone" id="edit_driver_phone" required class="w-full p-2 border border-gray-200 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">License Number</label>
+                    <input type="text" name="driver_license" id="edit_driver_license" required class="w-full p-2 border border-gray-200 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Rate per Day ($)</label>
+                    <input type="number" name="driver_rate" id="edit_driver_rate" step="0.01" required class="w-full p-2 border border-gray-200 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Experience (Years)</label>
+                    <input type="number" name="driver_experience" id="edit_driver_experience" required class="w-full p-2 border border-gray-200 rounded-lg">
+                </div>
+                <button type="submit" name="edit_driver" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition">Update Driver</button>
+            </form>
+        </div>
+    </div>
+    
     <!-- Edit Vehicle Modal -->
     <div id="editVehicleModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white border border-gray-200 p-8 max-w-md w-full rounded-xl relative">
@@ -449,6 +616,18 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
             document.getElementById('edit_price').value = vehicle.price_per_day;
             document.getElementById('edit_existing_image').value = vehicle.image_url || '';
             toggleModal('editVehicleModal');
+            lucide.createIcons();
+        }
+        
+        function openEditDriverModal(driver) {
+            document.getElementById('edit_driver_id').value = driver.id;
+            document.getElementById('edit_driver_name').value = driver.name;
+            document.getElementById('edit_driver_phone').value = driver.phone;
+            document.getElementById('edit_driver_license').value = driver.license_number;
+            document.getElementById('edit_driver_rate').value = driver.rate_per_day;
+            document.getElementById('edit_driver_experience').value = driver.experience_years;
+            toggleModal('driverModal');
+            toggleModal('editDriverModal');
             lucide.createIcons();
         }
         

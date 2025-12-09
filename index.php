@@ -73,12 +73,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirm_rental'])) {
         $start_date = $_POST['start_date'];
         $end_date = $_POST['end_date'];
         $total = $_POST['total_cost'];
+        $driver_id = isset($_POST['driver_id']) && $_POST['driver_id'] != '' ? intval($_POST['driver_id']) : null;
         
-        $stmt = $conn->prepare("INSERT INTO rentals (user_id, vehicle_id, start_date, end_date, total_cost) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("iissd", $_SESSION['user_id'], $vehicle_id, $start_date, $end_date, $total);
+        $stmt = $conn->prepare("INSERT INTO rentals (user_id, vehicle_id, driver_id, start_date, end_date, total_cost) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("iiissd", $_SESSION['user_id'], $vehicle_id, $driver_id, $start_date, $end_date, $total);
         
         if ($stmt->execute()) {
             $conn->query("UPDATE vehicles SET status = 'rented' WHERE id = $vehicle_id");
+            if ($driver_id) {
+                $conn->query("UPDATE drivers SET status = 'assigned' WHERE id = $driver_id");
+            }
             $rental_id = $stmt->insert_id;
             $success = "Payment Successful! Booking confirmed. <a href='invoice.php?id=$rental_id' style='color:#fff;text-decoration:underline;'>View Invoice</a>";
         }
@@ -129,6 +133,9 @@ if ($current_sort == 'asc') {
 }
 
 $vehicles = $conn->query($sql);
+
+// Fetch available drivers
+$available_drivers = $conn->query("SELECT * FROM drivers WHERE status = 'available' ORDER BY rate_per_day ASC");
 
 // Fetch Feedbacks
 $feedbacks_sql = "SELECT f.*, u.name as user_name FROM feedbacks f JOIN users u ON f.user_id = u.id ORDER BY f.created_at DESC LIMIT 6";
@@ -530,9 +537,34 @@ $feedbacks = $conn->query($feedbacks_sql);
                     </div>
                 </div>
                 
-                <div class="border-t border-white/10 pt-4 mt-4 flex justify-between items-center mb-4">
-                    <span class="text-sm text-gray-400 uppercase tracking-widest">Total</span>
-                    <span class="font-bold text-2xl text-white" id="displayTotal">$0.00</span>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-2 flex items-center gap-2">
+                        <input type="checkbox" id="needDriver" onchange="toggleDriverSelection()" class="w-4 h-4">
+                        Need a Driver?
+                    </label>
+                    <select name="driver_id" id="driverSelect" class="w-full bg-black border border-white/20 p-3 text-white focus:border-white outline-none hidden" onchange="calculateTotal()">
+                        <option value="">Select a driver</option>
+                        <?php while($driver = $available_drivers->fetch_assoc()): ?>
+                            <option value="<?php echo $driver['id']; ?>" data-rate="<?php echo $driver['rate_per_day']; ?>">
+                                <?php echo htmlspecialchars($driver['name']); ?> - $<?php echo $driver['rate_per_day']; ?>/day (<?php echo $driver['experience_years']; ?> yrs exp)
+                            </option>
+                        <?php endwhile; ?>
+                    </select>
+                </div>
+                
+                <div class="border-t border-white/10 pt-4 mt-4 mb-4">
+                    <div class="flex justify-between items-center text-sm text-gray-400 mb-2">
+                        <span>Vehicle Cost</span>
+                        <span id="vehicleCost">$0.00</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm text-gray-400 mb-2" id="driverCostRow" style="display:none;">
+                        <span>Driver Cost</span>
+                        <span id="driverCost">$0.00</span>
+                    </div>
+                    <div class="flex justify-between items-center pt-2 border-t border-white/10">
+                        <span class="text-sm text-gray-400 uppercase tracking-widest">Total</span>
+                        <span class="font-bold text-2xl text-white" id="displayTotal">$0.00</span>
+                    </div>
                 </div>
 
                 <?php if(isset($_SESSION['user_id'])): ?>
@@ -608,6 +640,10 @@ $feedbacks = $conn->query($feedbacks_sql);
             document.getElementById('endDate').value = '';
             document.getElementById('displayTotal').innerText = '$0.00';
             document.getElementById('modalTotalInput').value = '';
+            document.getElementById('needDriver').checked = false;
+            document.getElementById('driverSelect').value = '';
+            document.getElementById('driverSelect').classList.add('hidden');
+            document.getElementById('driverCostRow').style.display = 'none';
             if (document.getElementById('card-errors')) {
                 document.getElementById('card-errors').textContent = '';
             }
@@ -632,13 +668,42 @@ $feedbacks = $conn->query($feedbacks_sql);
             if (start && end) {
                 const diff = new Date(end) - new Date(start);
                 const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-                const total = (days > 0 ? days : 1) * price;
-
+                const vehicleTotal = (days > 0 ? days : 1) * price;
+                
+                // Calculate driver cost if selected
+                let driverTotal = 0;
+                const driverSelect = document.getElementById('driverSelect');
+                if (driverSelect && driverSelect.value) {
+                    const selectedOption = driverSelect.options[driverSelect.selectedIndex];
+                    const driverRate = parseFloat(selectedOption.getAttribute('data-rate'));
+                    driverTotal = (days > 0 ? days : 1) * driverRate;
+                }
+                
+                const total = vehicleTotal + driverTotal;
+                
+                document.getElementById('vehicleCost').innerText = '$' + vehicleTotal.toFixed(2);
+                document.getElementById('driverCost').innerText = '$' + driverTotal.toFixed(2);
                 document.getElementById('displayTotal').innerText = '$' + total.toFixed(2);
                 document.getElementById('modalTotalInput').value = total;
                 return total;
             }
             return 0;
+        }
+        
+        function toggleDriverSelection() {
+            const checkbox = document.getElementById('needDriver');
+            const driverSelect = document.getElementById('driverSelect');
+            const driverCostRow = document.getElementById('driverCostRow');
+            
+            if (checkbox.checked) {
+                driverSelect.classList.remove('hidden');
+                driverCostRow.style.display = 'flex';
+            } else {
+                driverSelect.classList.add('hidden');
+                driverSelect.value = '';
+                driverCostRow.style.display = 'none';
+                calculateTotal();
+            }
         }
 
         async function handleStripePayment() {
