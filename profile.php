@@ -32,7 +32,7 @@ $stmt = $conn->prepare("SELECT r.*, v.make, v.model, v.vehicle_number, v.image_u
     JOIN vehicles v ON r.vehicle_id = v.id 
     LEFT JOIN drivers d ON r.driver_id = d.id 
     WHERE r.user_id = ? 
-    ORDER BY r.created_at DESC");
+    ORDER BY r.id DESC");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $rentals_result = $stmt->get_result();
