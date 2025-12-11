@@ -467,8 +467,7 @@ $feedbacks = $conn->query($feedbacks_sql);
                         LUXURY CAR <br/> RENTAL MIAMI
                     </h2>
                     <p class="text-gray-400 mb-8 leading-relaxed font-light">
-                        A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country, in which roasted parts of sentences fly into your mouth.
-                    </p>
+Enjoy the most comfortable travel experience in Sri Lanka. Cruise through scenic landscapes, from riverside villages to lush green hills, with our reliable and luxurious vehicles.                    </p>
                     <div class="grid grid-cols-3 gap-8 mb-10">
                         <div class="text-center p-4 border border-white/10 hover:border-white/30 transition">
                             <i data-lucide="car" class="w-8 h-8 mx-auto mb-2 text-white"></i>
