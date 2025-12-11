@@ -861,7 +861,7 @@ Enjoy the most comfortable travel experience in Sri Lanka. Cruise through scenic
         }
 
         // Initialize Flatpickr calendars for booking dates
-        flatpickr('#startDate', {
+        var startPicker = flatpickr('#startDate', {
             minDate: 'today',
             dateFormat: 'Y-m-d',
             onChange: function(selectedDates, dateStr, instance) {
