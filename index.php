@@ -483,7 +483,7 @@ Enjoy the most comfortable travel experience in Sri Lanka. Cruise through scenic
                     </div>
                 </div>
                 <div class="relative">
-                    <img src="https://images.unsplash.com/photo-1617788138017-80ad40651399?q=80&w=2070&auto=format&fit=crop" class="w-full grayscale hover:grayscale-0 transition duration-700">
+                    <img src="https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?q=80&w=2071&auto=format&fit=crop" class="w-full grayscale hover:grayscale-0 transition duration-700">
                     <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-black border border-white/10 -z-10"></div>
                 </div>
             </div>
