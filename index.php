@@ -285,8 +285,7 @@ $feedbacks = $conn->query($feedbacks_sql);
                 </div>
                 <h1 class="text-5xl md:text-7xl font-black text-white leading-tight mb-6 text-glow">
                     HANSI <br/>
-                    TRAVELS <br/>
-                    RENTALS
+                    TRAVELS
                 </h1>
                 <p class="text-lg text-gray-400 mb-10 max-w-xl font-light">
                     Enjoy the most luxurious experience. A small river named Duden flows by their place and supplies it with the necessary regelialia.
