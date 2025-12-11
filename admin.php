@@ -232,6 +232,9 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
                 <a href="index.php" class="flex items-center gap-2 text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg transition font-medium">
                     <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Home
                 </a>
+                <a href="verify_booking.php" class="bg-orange-600 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-orange-700 transition">
+                    <i data-lucide="search-check" class="inline w-5 h-5 mr-2"></i> Verify Booking
+                </a>
                 <button onclick="toggleModal('driverModal')" class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-green-700 transition">
                     <i data-lucide="user-check" class="inline w-5 h-5 mr-2"></i> Manage Drivers
                 </button>

@@ -503,35 +503,66 @@ Enjoy the most comfortable travel experience in Sri Lanka. Cruise through scenic
                 <h2 class="text-4xl md:text-5xl font-black text-white mb-4">CUSTOMER REVIEWS</h2>
             </div>
 
-            <!-- Feedback Display Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
+            <!-- Feedback Carousel -->
+            <div class="relative mb-20">
                 <?php if ($feedbacks && $feedbacks->num_rows > 0): ?>
-                    <?php while($feedback = $feedbacks->fetch_assoc()): ?>
-                        <div class="bg-[#0a0a0a] border border-white/10 p-6 hover:border-white/30 transition group">
-                            <!-- Rating Stars -->
-                            <div class="flex gap-1 mb-4">
-                                <?php for($i = 1; $i <= 5; $i++): ?>
-                                    <i data-lucide="star" class="w-4 h-4 <?php echo $i <= $feedback['rating'] ? 'fill-yellow-500 text-yellow-500' : 'text-gray-600'; ?>"></i>
-                                <?php endfor; ?>
-                            </div>
-                            
-                            <!-- Feedback Message -->
-                            <p class="text-gray-400 mb-6 leading-relaxed text-sm">"<?php echo htmlspecialchars($feedback['message']); ?>"</p>
-                            
-                            <!-- User Info -->
-                            <div class="flex items-center gap-3 pt-4 border-t border-white/5">
-                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                                    <?php echo strtoupper(substr($feedback['user_name'], 0, 1)); ?>
+                    <?php 
+                    // Reset pointer to fetch all feedbacks again
+                    $feedbacks->data_seek(0);
+                    $all_feedbacks = [];
+                    while($feedback = $feedbacks->fetch_assoc()) {
+                        $all_feedbacks[] = $feedback;
+                    }
+                    ?>
+                    
+                    <!-- Carousel Container -->
+                    <div class="relative overflow-hidden px-12">
+                        <div id="feedbackCarousel" class="flex transition-transform duration-500 ease-in-out">
+                            <?php foreach($all_feedbacks as $feedback): ?>
+                                <div class="feedback-slide min-w-full md:min-w-[50%] lg:min-w-[33.333%] px-3">
+                                    <div class="bg-[#0a0a0a] border border-white/10 p-6 hover:border-white/30 transition group h-full">
+                                        <!-- Rating Stars -->
+                                        <div class="flex gap-1 mb-4">
+                                            <?php for($i = 1; $i <= 5; $i++): ?>
+                                                <i data-lucide="star" class="w-4 h-4 <?php echo $i <= $feedback['rating'] ? 'fill-yellow-500 text-yellow-500' : 'text-gray-600'; ?>"></i>
+                                            <?php endfor; ?>
+                                        </div>
+                                        
+                                        <!-- Feedback Message -->
+                                        <p class="text-gray-400 mb-6 leading-relaxed text-sm">"<?php echo htmlspecialchars($feedback['message']); ?>"</p>
+                                        
+                                        <!-- User Info -->
+                                        <div class="flex items-center gap-3 pt-4 border-t border-white/5">
+                                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                                                <?php echo strtoupper(substr($feedback['user_name'], 0, 1)); ?>
+                                            </div>
+                                            <div>
+                                                <p class="text-white font-bold text-sm"><?php echo htmlspecialchars($feedback['user_name']); ?></p>
+                                                <p class="text-gray-600 text-xs"><?php echo date('M d, Y', strtotime($feedback['created_at'])); ?></p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p class="text-white font-bold text-sm"><?php echo htmlspecialchars($feedback['user_name']); ?></p>
-                                    <p class="text-gray-600 text-xs"><?php echo date('M d, Y', strtotime($feedback['created_at'])); ?></p>
-                                </div>
-                            </div>
+                            <?php endforeach; ?>
                         </div>
-                    <?php endwhile; ?>
+                    </div>
+
+                    <!-- Carousel Navigation -->
+                    <button id="prevBtn" class="absolute left-0 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full backdrop-blur-sm transition z-10">
+                        <i data-lucide="chevron-left" class="w-6 h-6"></i>
+                    </button>
+                    <button id="nextBtn" class="absolute right-0 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full backdrop-blur-sm transition z-10">
+                        <i data-lucide="chevron-right" class="w-6 h-6"></i>
+                    </button>
+
+                    <!-- Carousel Indicators -->
+                    <div class="flex justify-center gap-2 mt-8">
+                        <?php for($i = 0; $i < count($all_feedbacks); $i++): ?>
+                            <button class="carousel-dot w-2 h-2 rounded-full bg-white/30 hover:bg-white/50 transition" data-index="<?php echo $i; ?>"></button>
+                        <?php endfor; ?>
+                    </div>
                 <?php else: ?>
-                    <div class="col-span-3 text-center py-12">
+                    <div class="text-center py-12">
                         <i data-lucide="message-circle" class="w-16 h-16 mx-auto mb-4 text-gray-700"></i>
                         <p class="text-gray-500">No reviews yet. Be the first to share your experience!</p>
                     </div>
@@ -976,6 +1007,125 @@ Enjoy the most comfortable travel experience in Sri Lanka. Cruise through scenic
                     });
                 });
             });
+        }
+
+        // Feedback Carousel with Autoplay and Hover Pause
+        const carousel = document.getElementById('feedbackCarousel');
+        if (carousel) {
+            const slides = carousel.querySelectorAll('.feedback-slide');
+            const totalSlides = slides.length;
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const dots = document.querySelectorAll('.carousel-dot');
+            
+            let currentIndex = 0;
+            let autoplayInterval;
+            let isHovered = false;
+            
+            // Calculate slides to show based on screen width
+            function getSlidesToShow() {
+                if (window.innerWidth >= 1024) return 3; // lg
+                if (window.innerWidth >= 768) return 2;  // md
+                return 1; // mobile
+            }
+            
+            function updateCarousel() {
+                const slidesToShow = getSlidesToShow();
+                const maxIndex = Math.max(0, totalSlides - slidesToShow);
+                currentIndex = Math.min(currentIndex, maxIndex);
+                
+                const slideWidth = 100 / slidesToShow;
+                const offset = -(currentIndex * slideWidth);
+                carousel.style.transform = `translateX(${offset}%)`;
+                
+                // Update dots
+                dots.forEach((dot, index) => {
+                    if (index === currentIndex) {
+                        dot.classList.remove('bg-white/30');
+                        dot.classList.add('bg-white', 'w-8');
+                    } else {
+                        dot.classList.remove('bg-white', 'w-8');
+                        dot.classList.add('bg-white/30');
+                    }
+                });
+                
+                lucide.createIcons();
+            }
+            
+            function nextSlide() {
+                const slidesToShow = getSlidesToShow();
+                const maxIndex = Math.max(0, totalSlides - slidesToShow);
+                currentIndex = (currentIndex + 1) > maxIndex ? 0 : currentIndex + 1;
+                updateCarousel();
+            }
+            
+            function prevSlide() {
+                const slidesToShow = getSlidesToShow();
+                const maxIndex = Math.max(0, totalSlides - slidesToShow);
+                currentIndex = (currentIndex - 1) < 0 ? maxIndex : currentIndex - 1;
+                updateCarousel();
+            }
+            
+            function startAutoplay() {
+                if (!isHovered) {
+                    autoplayInterval = setInterval(nextSlide, 4000); // 4 seconds
+                }
+            }
+            
+            function stopAutoplay() {
+                clearInterval(autoplayInterval);
+            }
+            
+            // Event Listeners
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => {
+                    stopAutoplay();
+                    nextSlide();
+                    startAutoplay();
+                });
+            }
+            
+            if (prevBtn) {
+                prevBtn.addEventListener('click', () => {
+                    stopAutoplay();
+                    prevSlide();
+                    startAutoplay();
+                });
+            }
+            
+            // Dot navigation
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    stopAutoplay();
+                    currentIndex = index;
+                    updateCarousel();
+                    startAutoplay();
+                });
+            });
+            
+            // Pause on hover
+            carousel.parentElement.addEventListener('mouseenter', () => {
+                isHovered = true;
+                stopAutoplay();
+            });
+            
+            carousel.parentElement.addEventListener('mouseleave', () => {
+                isHovered = false;
+                startAutoplay();
+            });
+            
+            // Handle window resize
+            let resizeTimer;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    updateCarousel();
+                }, 250);
+            });
+            
+            // Initialize
+            updateCarousel();
+            startAutoplay();
         }
     </script>
 </body>
