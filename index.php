@@ -289,8 +289,7 @@ $feedbacks = $conn->query($feedbacks_sql);
                     TRAVELS
                 </h1>
                 <p class="text-lg text-gray-400 mb-10 max-w-xl font-light">
-                    Enjoy the most luxurious experience. A small river named Duden flows by their place and supplies it with the necessary regelialia.
-                </p>
+Discover Sri Lanka in comfort. Drive past peaceful rivers, mountains, and coastal roads with our premium and well-maintained vehicles.                </p>
                 <a href="#fleet" class="inline-block border border-white px-10 py-4 text-sm font-bold tracking-widest hover:bg-white hover:text-black transition duration-300">
                     DISCOVER FLEET
                 </a>
@@ -464,7 +463,7 @@ $feedbacks = $conn->query($feedbacks_sql);
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                 <div>
                     <h2 class="text-4xl md:text-5xl font-black text-white mb-6 leading-tight">
-                        LUXURY CAR <br/> RENTAL MIAMI
+                        LUXURY CAR <br/> RENTAL IN SRI LANKA
                     </h2>
                     <p class="text-gray-400 mb-8 leading-relaxed font-light">
 Enjoy the most comfortable travel experience in Sri Lanka. Cruise through scenic landscapes, from riverside villages to lush green hills, with our reliable and luxurious vehicles.                    </p>
