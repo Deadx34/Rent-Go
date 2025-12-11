@@ -323,7 +323,7 @@ Discover Sri Lanka in comfort. Drive past peaceful rivers, mountains, and coasta
     <?php endif; ?>
 
     <!-- WhatsApp Floating Button -->
-    <a href="https://wa.me/1234567890?text=Hello%2C%20I%20would%20like%20to%20inquire%20about%20car%20rentals" 
+    <a href="https://wa.me/+94763121863?text=Hello%2C%20I%20would%20like%20to%20inquire%20about%20car%20rentals" 
        target="_blank" 
        class="fixed bottom-6 right-6 z-50 bg-green-500 hover:bg-green-600 text-white rounded-full p-4 shadow-2xl transition-all duration-300 hover:scale-110 group"
        title="Chat on WhatsApp">
