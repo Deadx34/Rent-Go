@@ -232,9 +232,9 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
                 <a href="index.php" class="flex items-center gap-2 text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg transition font-medium">
                     <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Home
                 </a>
-                <a href="verify_booking.php" class="bg-orange-600 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-orange-700 transition">
+                <button onclick="openVerifyBookingModal()" class="bg-orange-600 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-orange-700 transition">
                     <i data-lucide="search-check" class="inline w-5 h-5 mr-2"></i> Verify Booking
-                </a>
+                </button>
                 <button onclick="toggleModal('driverModal')" class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-green-700 transition">
                     <i data-lucide="user-check" class="inline w-5 h-5 mr-2"></i> Manage Drivers
                 </button>
@@ -634,6 +634,64 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
             </form>
         </div>
     </div>
+
+    <!-- Verify Booking Modal -->
+    <div id="verifyBookingModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4 overflow-y-auto">
+        <div class="bg-white rounded-xl shadow-2xl max-w-6xl w-full my-8 max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-gradient-to-r from-orange-600 to-orange-800 text-white p-6 rounded-t-xl z-10">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="search-check" class="w-8 h-8"></i>
+                        <h2 class="text-2xl font-black">VERIFY BOOKING</h2>
+                    </div>
+                    <button onclick="closeVerifyBookingModal()" class="text-white hover:text-gray-200 transition">
+                        <i data-lucide="x" class="w-8 h-8"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-8">
+                <!-- Search Form -->
+                <form id="verifySearchForm" class="space-y-4 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Search By</label>
+                            <select id="verify_search_type" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none">
+                                <option value="booking_id">Booking ID</option>
+                                <option value="customer_email">Customer Email</option>
+                                <option value="vehicle_number">Vehicle Registration Number</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Search Value</label>
+                            <input type="text" id="verify_search_value" required placeholder="Enter search value..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:outline-none">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full md:w-auto px-8 py-3 bg-orange-600 text-white font-bold rounded-lg hover:bg-orange-700 transition flex items-center justify-center gap-2">
+                        <i data-lucide="search" class="w-5 h-5"></i>
+                        Search Booking
+                    </button>
+                </form>
+
+                <!-- Results Container -->
+                <div id="verifyResults" class="hidden">
+                    <div id="bookingDetailsContainer"></div>
+                </div>
+
+                <!-- No Results Message -->
+                <div id="noResults" class="hidden bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-lg">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="alert-circle" class="w-8 h-8 text-yellow-600"></i>
+                        <div>
+                            <h3 class="font-bold text-lg text-yellow-800">No Booking Found</h3>
+                            <p class="text-yellow-700">No booking matches your search criteria. Please verify the details and try again.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Customer Registration Modal -->
     <div id="customerModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white border border-gray-200 p-8 max-w-md w-full rounded-xl relative">
@@ -713,6 +771,232 @@ $rentals = $conn->query("SELECT r.*, u.name as user_name, v.make, v.model, v.veh
                 setTimeout(() => notification.remove(), 500);
             });
         }, 3000);
+
+        // Verify Booking Modal Functions
+        function openVerifyBookingModal() {
+            document.getElementById('verifyBookingModal').classList.remove('hidden');
+            document.getElementById('verifyBookingModal').classList.add('flex');
+            document.getElementById('verifyResults').classList.add('hidden');
+            document.getElementById('noResults').classList.add('hidden');
+            document.getElementById('verify_search_value').value = '';
+            lucide.createIcons();
+        }
+
+        function closeVerifyBookingModal() {
+            document.getElementById('verifyBookingModal').classList.remove('flex');
+            document.getElementById('verifyBookingModal').classList.add('hidden');
+        }
+
+        // Handle verify booking search
+        document.getElementById('verifySearchForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const searchType = document.getElementById('verify_search_type').value;
+            const searchValue = document.getElementById('verify_search_value').value.trim();
+            
+            if (!searchValue) {
+                alert('Please enter a search value');
+                return;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('search_booking_ajax', '1');
+                formData.append('search_type', searchType);
+                formData.append('search_value', searchValue);
+
+                const response = await fetch('verify_booking_ajax.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success && result.booking) {
+                    displayBookingDetails(result.booking);
+                    document.getElementById('verifyResults').classList.remove('hidden');
+                    document.getElementById('noResults').classList.add('hidden');
+                } else {
+                    document.getElementById('verifyResults').classList.add('hidden');
+                    document.getElementById('noResults').classList.remove('hidden');
+                }
+                lucide.createIcons();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while searching. Please try again.');
+            }
+        });
+
+        function displayBookingDetails(booking) {
+            const container = document.getElementById('bookingDetailsContainer');
+            const days = Math.max(1, Math.ceil((new Date(booking.end_date) - new Date(booking.start_date)) / (1000 * 60 * 60 * 24)));
+            
+            container.innerHTML = `
+                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-700 text-white p-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="text-xl font-black mb-1">BOOKING VERIFIED ✓</h3>
+                                <p class="text-blue-100 text-sm">Booking ID: #${String(booking.id).padStart(6, '0')}</p>
+                            </div>
+                            <div class="text-right space-y-2">
+                                <span class="inline-block px-3 py-1 rounded-full text-xs font-bold ${booking.status === 'active' ? 'bg-green-500' : booking.status === 'returned' ? 'bg-gray-500' : 'bg-yellow-500'}">
+                                    ${booking.status.toUpperCase()}
+                                </span>
+                                <br>
+                                <span class="inline-block px-3 py-1 rounded-full text-xs font-bold ${booking.payment_status === 'paid' ? 'bg-green-500' : 'bg-orange-500'}">
+                                    ${booking.payment_status === 'paid' ? '✓ PAID' : '⏳ PENDING'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <!-- Customer Info -->
+                            <div class="border-l-4 border-blue-500 pl-4">
+                                <h4 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                                    <i data-lucide="user" class="w-5 h-5 text-blue-500"></i>
+                                    CUSTOMER DETAILS
+                                </h4>
+                                <div class="space-y-2 text-sm">
+                                    <div><span class="text-gray-500">Name:</span> <strong>${booking.customer_name}</strong></div>
+                                    <div><span class="text-gray-500">Email:</span> <strong>${booking.customer_email}</strong></div>
+                                    <div><span class="text-gray-500">ID:</span> <strong>#${String(booking.user_id).padStart(5, '0')}</strong></div>
+                                </div>
+                            </div>
+
+                            <!-- Vehicle Info -->
+                            <div class="border-l-4 border-green-500 pl-4">
+                                <h4 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                                    <i data-lucide="car" class="w-5 h-5 text-green-500"></i>
+                                    VEHICLE DETAILS
+                                </h4>
+                                <div class="space-y-2 text-sm">
+                                    <div><span class="text-gray-500">Vehicle:</span> <strong>${booking.make} ${booking.model}</strong></div>
+                                    <div><span class="text-gray-500">Reg:</span> <strong class="bg-yellow-100 px-2 py-1 rounded">${booking.vehicle_number}</strong></div>
+                                    <div><span class="text-gray-500">Type:</span> <strong>${booking.type}</strong></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <!-- Rental Period -->
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-gray-800 mb-3">RENTAL PERIOD</h4>
+                                <div class="grid grid-cols-2 gap-3 text-sm">
+                                    <div>
+                                        <span class="text-gray-600 text-xs">Pick-up</span>
+                                        <p class="font-bold">${new Date(booking.start_date).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'})}</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-600 text-xs">Return</span>
+                                        <p class="font-bold">${new Date(booking.end_date).toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'})}</p>
+                                    </div>
+                                </div>
+                                <div class="mt-3 pt-3 border-t border-blue-200">
+                                    <span class="text-gray-600 text-xs">Total Duration</span>
+                                    <p class="text-xl font-black text-blue-600">${days} Day${days > 1 ? 's' : ''}</p>
+                                </div>
+                            </div>
+
+                            <!-- Pricing -->
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-gray-800 mb-3">PRICING</h4>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-700">Total Amount</span>
+                                        <span class="text-xl font-black text-green-600">LKR ${parseFloat(booking.total_cost).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                    </div>
+                                    <div class="flex justify-between pt-2 border-t border-green-200">
+                                        <span class="text-gray-700">Payment Method</span>
+                                        <span class="font-bold">${booking.payment_method === 'pay_at_pickup' ? 'Pay at Pickup' : 'Online Payment'}</span>
+                                    </div>
+                                    ${booking.transaction_id ? `<div class="flex justify-between">
+                                        <span class="text-gray-700">Transaction ID</span>
+                                        <span class="font-mono text-xs">${booking.transaction_id}</span>
+                                    </div>` : ''}
+                                </div>
+                            </div>
+                        </div>
+
+                        ${booking.driver_name ? `
+                        <div class="bg-purple-50 p-4 rounded-lg mb-6">
+                            <h4 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                                <i data-lucide="user-check" class="w-5 h-5 text-purple-600"></i>
+                                ASSIGNED DRIVER
+                            </h4>
+                            <div class="grid grid-cols-3 gap-4 text-sm">
+                                <div>
+                                    <span class="text-gray-600 text-xs">Name</span>
+                                    <p class="font-bold">${booking.driver_name}</p>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600 text-xs">License</span>
+                                    <p class="font-bold">${booking.driver_license || 'N/A'}</p>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600 text-xs">Contact</span>
+                                    <p class="font-bold">${booking.driver_phone || 'N/A'}</p>
+                                </div>
+                            </div>
+                        </div>` : ''}
+
+                        <!-- Action Buttons -->
+                        <div class="flex flex-wrap gap-3 pt-4 border-t border-gray-200">
+                            ${booking.status === 'pending' ? `
+                            <button onclick="updateBookingStatus(${booking.id}, 'active')" class="px-4 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition flex items-center gap-2 text-sm">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i>
+                                Mark as Picked Up
+                            </button>` : ''}
+                            
+                            ${booking.status === 'active' ? `
+                            <button onclick="updateBookingStatus(${booking.id}, 'returned')" class="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition flex items-center gap-2 text-sm">
+                                <i data-lucide="check-square" class="w-4 h-4"></i>
+                                Mark as Returned
+                            </button>` : ''}
+                            
+                            <a href="invoice.php?id=${booking.id}" target="_blank" class="px-4 py-2 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-700 transition flex items-center gap-2 text-sm">
+                                <i data-lucide="file-text" class="w-4 h-4"></i>
+                                View Invoice
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        async function updateBookingStatus(bookingId, status) {
+            if (!confirm(`Are you sure you want to mark this booking as ${status}?`)) {
+                return;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('update_booking_status', '1');
+                formData.append('booking_id', bookingId);
+                formData.append('status', status);
+
+                const response = await fetch('verify_booking_ajax.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Booking status updated successfully!');
+                    closeVerifyBookingModal();
+                    location.reload();
+                } else {
+                    alert('Failed to update booking status. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            }
+        }
     </script>
 </body>
 </html>
