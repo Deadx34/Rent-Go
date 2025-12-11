@@ -42,15 +42,9 @@ $stmt->close();
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
     $name = $_POST['name'];
     $email = $_POST['email'];
-    $phone = isset($_POST['phone']) ? $_POST['phone'] : '';
     
-    if (!empty($phone)) {
-        $stmt = $conn->prepare("UPDATE users SET name=?, email=?, phone=? WHERE id=?");
-        $stmt->bind_param("sssi", $name, $email, $phone, $user_id);
-    } else {
-        $stmt = $conn->prepare("UPDATE users SET name=?, email=? WHERE id=?");
-        $stmt->bind_param("ssi", $name, $email, $user_id);
-    }
+    $stmt = $conn->prepare("UPDATE users SET name=?, email=? WHERE id=?");
+    $stmt->bind_param("ssi", $name, $email, $user_id);
     
     if ($stmt->execute()) {
         $stmt->close();
@@ -282,10 +276,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2">Email</label>
                     <input type="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required class="w-full p-3 border rounded-lg">
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Phone (Optional)</label>
-                    <input type="text" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>" class="w-full p-3 border rounded-lg">
                 </div>
                 <button type="submit" name="update_profile" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition">
                     Update Profile

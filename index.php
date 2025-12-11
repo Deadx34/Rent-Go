@@ -547,11 +547,11 @@ Enjoy the most comfortable travel experience in Sri Lanka. Cruise through scenic
                         <!-- Rating Selection -->
                         <div>
                             <label class="block text-white font-bold mb-3 text-sm uppercase tracking-wider">Rating</label>
-                            <div class="flex gap-2">
+                            <div class="flex gap-2" id="starRating">
                                 <?php for($i = 1; $i <= 5; $i++): ?>
-                                    <label class="cursor-pointer group">
-                                        <input type="radio" name="rating" value="<?php echo $i; ?>" class="hidden peer" <?php echo $i === 5 ? 'checked' : ''; ?>>
-                                        <i data-lucide="star" class="w-8 h-8 text-gray-600 peer-checked:fill-yellow-500 peer-checked:text-yellow-500 hover:text-yellow-400 transition"></i>
+                                    <label class="cursor-pointer group" data-rating="<?php echo $i; ?>">
+                                        <input type="radio" name="rating" value="<?php echo $i; ?>" class="hidden" <?php echo $i === 5 ? 'checked' : ''; ?>>
+                                        <i data-lucide="star" class="w-8 h-8 star-icon <?php echo $i === 5 ? 'fill-yellow-500 text-yellow-500' : 'text-gray-600'; ?> hover:text-yellow-400 transition"></i>
                                     </label>
                                 <?php endfor; ?>
                             </div>
@@ -929,6 +929,54 @@ Enjoy the most comfortable travel experience in Sri Lanka. Cruise through scenic
                 setTimeout(() => notification.remove(), 500);
             });
         }, 3000);
+
+        // Star Rating System
+        const starRating = document.getElementById('starRating');
+        if (starRating) {
+            const labels = starRating.querySelectorAll('label');
+            
+            labels.forEach((label, index) => {
+                label.addEventListener('click', function() {
+                    const rating = parseInt(this.getAttribute('data-rating'));
+                    
+                    // Update all stars
+                    labels.forEach((lbl, idx) => {
+                        const star = lbl.querySelector('.star-icon');
+                        const input = lbl.querySelector('input');
+                        
+                        if (idx < rating) {
+                            // Fill stars up to selected rating
+                            star.classList.add('fill-yellow-500', 'text-yellow-500');
+                            star.classList.remove('text-gray-600');
+                        } else {
+                            // Empty stars after selected rating
+                            star.classList.remove('fill-yellow-500', 'text-yellow-500');
+                            star.classList.add('text-gray-600');
+                        }
+                    });
+                    
+                    lucide.createIcons();
+                });
+                
+                // Hover effect
+                label.addEventListener('mouseenter', function() {
+                    const rating = parseInt(this.getAttribute('data-rating'));
+                    labels.forEach((lbl, idx) => {
+                        const star = lbl.querySelector('.star-icon');
+                        if (idx < rating) {
+                            star.style.opacity = '0.7';
+                        }
+                    });
+                });
+                
+                label.addEventListener('mouseleave', function() {
+                    labels.forEach(lbl => {
+                        const star = lbl.querySelector('.star-icon');
+                        star.style.opacity = '1';
+                    });
+                });
+            });
+        }
     </script>
 </body>
 </html>
