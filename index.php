@@ -621,7 +621,7 @@ Enjoy the most comfortable travel experience in Sri Lanka. Cruise through scenic
                 <!-- Brand Info -->
                 <div>
                     <div class="flex items-center gap-3 mb-8">
-                        <img src="./uploads/HansiTravels_logo.svg" alt="Logo" class="w-10 h-10 object-contain"/>
+                        <img src="./uploads/HansiTravels_logo.svg" alt="Logo" class="w-50 h-50 object-contain"/>
                         <span class="font-black text-2xl tracking-widest text-white">Hansi Travels</span>
                     </div>
                     <div class="space-y-6 text-sm text-gray-400">
