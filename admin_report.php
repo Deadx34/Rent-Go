@@ -41,7 +41,7 @@ $popular_vehicle = $conn->query("SELECT v.make, v.model, COUNT(*) as cnt FROM re
             </div>
             <div class="bg-white p-6 rounded-xl shadow border">
                 <h2 class="font-bold text-lg mb-2">Total Revenue</h2>
-                <p class="text-3xl font-black text-green-600">$<?php echo number_format($total_revenue, 2); ?></p>
+                <p class="text-3xl font-black text-green-600">LKR<?php echo number_format($total_revenue, 2); ?></p>
             </div>
             <div class="bg-white p-6 rounded-xl shadow border">
                 <h2 class="font-bold text-lg mb-2">Vehicles in Fleet</h2>
