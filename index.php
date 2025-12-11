@@ -724,14 +724,59 @@ Enjoy the most comfortable travel experience in Sri Lanka. Cruise through scenic
                         <input type="checkbox" id="needDriver" onchange="toggleDriverSelection()" class="w-4 h-4">
                         Need a Driver?
                     </label>
-                    <select name="driver_id" id="driverSelect" class="w-full bg-black border border-white/20 p-3 text-white focus:border-white outline-none hidden" onchange="calculateTotal()">
+                    <select name="driver_id" id="driverSelect" class="w-full bg-black border border-white/20 p-3 text-white focus:border-white outline-none hidden" onchange="showDriverProfile()">
                         <option value="">Select a driver</option>
-                        <?php while($driver = $available_drivers->fetch_assoc()): ?>
-                            <option value="<?php echo $driver['id']; ?>" data-rate="<?php echo $driver['rate_per_day']; ?>">
-                                <?php echo htmlspecialchars($driver['name']); ?> - LKR <?php echo number_format($driver['rate_per_day'], 2); ?>/day (<?php echo $driver['experience_years']; ?> yrs exp)
+                        <?php 
+                        $available_drivers->data_seek(0);
+                        while($driver = $available_drivers->fetch_assoc()): 
+                        ?>
+                            <option value="<?php echo $driver['id']; ?>" 
+                                    data-rate="<?php echo $driver['rate_per_day']; ?>"
+                                    data-name="<?php echo htmlspecialchars($driver['name']); ?>"
+                                    data-experience="<?php echo $driver['experience_years']; ?>"
+                                    data-phone="<?php echo htmlspecialchars($driver['phone'] ?? 'N/A'); ?>"
+                                    data-photo="<?php echo htmlspecialchars($driver['photo_url'] ?? ''); ?>">
+                                <?php echo htmlspecialchars($driver['name']); ?> - LKR <?php echo number_format($driver['rate_per_day'], 2); ?>/day
                             </option>
                         <?php endwhile; ?>
                     </select>
+                    
+                    <!-- Driver Profile Preview -->
+                    <div id="driverProfilePreview" class="hidden mt-4 bg-gradient-to-br from-blue-900/20 to-purple-900/20 border border-blue-500/30 rounded-lg p-4">
+                        <div class="flex gap-4 items-start">
+                            <div class="flex-shrink-0">
+                                <div id="driverPhotoContainer" class="w-20 h-20 rounded-full overflow-hidden border-2 border-blue-500 bg-gradient-to-br from-blue-500 to-purple-500">
+                                    <img id="driverPhoto" src="" alt="Driver" class="w-full h-full object-cover hidden">
+                                    <div id="driverPhotoPlaceholder" class="w-full h-full flex items-center justify-center text-white text-2xl font-bold">
+                                        D
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <h4 id="driverNameDisplay" class="text-white font-bold text-lg mb-1"></h4>
+                                <div class="space-y-1 text-sm">
+                                    <div class="flex items-center gap-2 text-gray-400">
+                                        <i data-lucide="award" class="w-4 h-4"></i>
+                                        <span id="driverExperience"></span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-gray-400">
+                                        <i data-lucide="phone" class="w-4 h-4"></i>
+                                        <span id="driverPhone"></span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-blue-400">
+                                        <i data-lucide="dollar-sign" class="w-4 h-4"></i>
+                                        <span id="driverRate" class="font-bold"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0">
+                                <span class="inline-flex items-center gap-1 px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs font-bold">
+                                    <i data-lucide="check-circle" class="w-3 h-3"></i>
+                                    Available
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="border-t border-white/10 pt-4 mt-4">
@@ -902,6 +947,7 @@ Enjoy the most comfortable travel experience in Sri Lanka. Cruise through scenic
             const checkbox = document.getElementById('needDriver');
             const driverSelect = document.getElementById('driverSelect');
             const driverCostRow = document.getElementById('driverCostRow');
+            const driverProfile = document.getElementById('driverProfilePreview');
             
             if (checkbox.checked) {
                 driverSelect.classList.remove('hidden');
@@ -910,8 +956,55 @@ Enjoy the most comfortable travel experience in Sri Lanka. Cruise through scenic
                 driverSelect.classList.add('hidden');
                 driverSelect.value = '';
                 driverCostRow.style.display = 'none';
+                driverProfile.classList.add('hidden');
                 calculateTotal();
             }
+        }
+        
+        function showDriverProfile() {
+            const driverSelect = document.getElementById('driverSelect');
+            const selectedOption = driverSelect.options[driverSelect.selectedIndex];
+            const driverProfile = document.getElementById('driverProfilePreview');
+            
+            if (driverSelect.value) {
+                // Get driver data from option attributes
+                const driverName = selectedOption.getAttribute('data-name');
+                const driverExperience = selectedOption.getAttribute('data-experience');
+                const driverPhone = selectedOption.getAttribute('data-phone');
+                const driverRate = selectedOption.getAttribute('data-rate');
+                const driverPhoto = selectedOption.getAttribute('data-photo');
+                
+                // Update profile display
+                document.getElementById('driverNameDisplay').textContent = driverName;
+                document.getElementById('driverExperience').textContent = driverExperience + ' years experience';
+                document.getElementById('driverPhone').textContent = driverPhone;
+                document.getElementById('driverRate').textContent = 'LKR ' + parseFloat(driverRate).toFixed(2) + '/day';
+                
+                // Handle photo
+                const photoImg = document.getElementById('driverPhoto');
+                const photoPlaceholder = document.getElementById('driverPhotoPlaceholder');
+                
+                if (driverPhoto && driverPhoto !== '') {
+                    photoImg.src = driverPhoto;
+                    photoImg.classList.remove('hidden');
+                    photoPlaceholder.classList.add('hidden');
+                } else {
+                    photoImg.classList.add('hidden');
+                    photoPlaceholder.classList.remove('hidden');
+                    photoPlaceholder.textContent = driverName.charAt(0).toUpperCase();
+                }
+                
+                // Show profile
+                driverProfile.classList.remove('hidden');
+                
+                // Reinitialize icons
+                lucide.createIcons();
+            } else {
+                driverProfile.classList.add('hidden');
+            }
+            
+            // Recalculate total
+            calculateTotal();
         }
         
         function togglePaymentMethod() {
