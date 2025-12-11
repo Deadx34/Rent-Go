@@ -78,22 +78,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirm_rental'])) {
         $payment_status = ($payment_method === 'pay_at_pickup') ? 'pending' : 'paid';
         $transaction_id = isset($_POST['transaction_id']) ? $_POST['transaction_id'] : null;
         
-        $stmt = $conn->prepare("INSERT INTO rentals (user_id, vehicle_id, driver_id, start_date, end_date, total_cost, payment_method, payment_status, transaction_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("iiissdsss", $_SESSION['user_id'], $vehicle_id, $driver_id, $start_date, $end_date, $total, $payment_method, $payment_status, $transaction_id);
+        // Check if dates are already booked
+        $check_stmt = $conn->prepare("SELECT COUNT(*) as count FROM rentals 
+                                       WHERE vehicle_id = ? 
+                                       AND status NOT IN ('returned', 'cancelled')
+                                       AND (start_date <= ? AND end_date >= ?)");
+        $check_stmt->bind_param("iss", $vehicle_id, $end_date, $start_date);
+        $check_stmt->execute();
+        $check_result = $check_stmt->get_result();
+        $check_row = $check_result->fetch_assoc();
+        $check_stmt->close();
         
-        if ($stmt->execute()) {
-            $conn->query("UPDATE vehicles SET status = 'rented' WHERE id = $vehicle_id");
-            if ($driver_id) {
-                $conn->query("UPDATE drivers SET status = 'assigned' WHERE id = $driver_id");
+        if ($check_row['count'] > 0) {
+            $error = "Sorry, this vehicle is already booked for the selected dates. Please choose different dates.";
+        } else {
+            $stmt = $conn->prepare("INSERT INTO rentals (user_id, vehicle_id, driver_id, start_date, end_date, total_cost, payment_method, payment_status, transaction_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("iiissdsss", $_SESSION['user_id'], $vehicle_id, $driver_id, $start_date, $end_date, $total, $payment_method, $payment_status, $transaction_id);
+            
+            if ($stmt->execute()) {
+                $conn->query("UPDATE vehicles SET status = 'rented' WHERE id = $vehicle_id");
+                if ($driver_id) {
+                    $conn->query("UPDATE drivers SET status = 'assigned' WHERE id = $driver_id");
+                }
+                $rental_id = $stmt->insert_id;
+                if ($payment_method === 'pay_at_pickup') {
+                    $success = "Booking confirmed! Please pay LKR " . number_format($total, 2) . " at pickup. <a href='invoice.php?id=$rental_id' style='color:#fff;text-decoration:underline;'>View Invoice</a>";
+                } else {
+                    $success = "Payment Successful! Booking confirmed. <a href='invoice.php?id=$rental_id' style='color:#fff;text-decoration:underline;'>View Invoice</a>";
+                }
             }
-            $rental_id = $stmt->insert_id;
-            if ($payment_method === 'pay_at_pickup') {
-                $success = "Booking confirmed! Please pay LKR " . number_format($total, 2) . " at pickup. <a href='invoice.php?id=$rental_id' style='color:#fff;text-decoration:underline;'>View Invoice</a>";
-            } else {
-                $success = "Payment Successful! Booking confirmed. <a href='invoice.php?id=$rental_id' style='color:#fff;text-decoration:underline;'>View Invoice</a>";
-            }
+            $stmt->close();
         }
-        $stmt->close();
     }
 }
 
@@ -877,7 +892,7 @@ Enjoy the most comfortable travel experience in Sri Lanka. Cruise through scenic
         var cardElement = elements.create('card');
         var cardMounted = false;
         
-        function openRentModal(button) {
+        async function openRentModal(button) {
             // Using Data Attributes to prevent quote escaping issues
             const id = button.getAttribute('data-id');
             const make = button.getAttribute('data-make');
@@ -900,7 +915,24 @@ Enjoy the most comfortable travel experience in Sri Lanka. Cruise through scenic
             if (document.getElementById('card-errors')) {
                 document.getElementById('card-errors').textContent = '';
             }
-            endPicker.set('minDate', 'today');
+
+            // Fetch booked dates for this vehicle
+            try {
+                const response = await fetch('get_booked_dates.php?vehicle_id=' + id);
+                const bookedDates = await response.json();
+                
+                // Disable booked dates in date pickers
+                startPicker.set('disable', bookedDates);
+                endPicker.set('disable', bookedDates);
+                startPicker.set('minDate', 'today');
+                endPicker.set('minDate', 'today');
+            } catch (error) {
+                console.error('Error fetching booked dates:', error);
+                startPicker.set('disable', []);
+                endPicker.set('disable', []);
+                startPicker.set('minDate', 'today');
+                endPicker.set('minDate', 'today');
+            }
 
             toggleModal('rentModal');
             
