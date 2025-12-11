@@ -241,6 +241,7 @@ $feedbacks = $conn->query($feedbacks_sql);
                     <a href="index.php" class="text-sm font-medium text-white hover:text-gray-400 tracking-wider transition">HOME</a>
                     <a href="#fleet" class="text-sm font-medium text-white hover:text-gray-400 tracking-wider transition">GALLERY</a>
                     <a href="#about" class="text-sm font-medium text-white hover:text-gray-400 tracking-wider transition">ABOUT</a>
+                    <a href="#feedback" class="text-sm font-medium text-white hover:text-gray-400 tracking-wider transition">REVIEWS</a>
                     <a href="#contact" class="text-sm font-medium text-white hover:text-gray-400 tracking-wider transition">CONTACT US</a>
                 </div>
 
@@ -487,6 +488,99 @@ $feedbacks = $conn->query($feedbacks_sql);
                     <img src="https://images.unsplash.com/photo-1617788138017-80ad40651399?q=80&w=2070&auto=format&fit=crop" class="w-full grayscale hover:grayscale-0 transition duration-700">
                     <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-black border border-white/10 -z-10"></div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback / Testimonials Section -->
+    <div id="feedback" class="py-24 bg-black border-t border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Section Header -->
+            <div class="text-center mb-16">
+                <div class="flex items-center justify-center gap-4 mb-4">
+                    <div class="h-[1px] w-12 bg-white/50"></div>
+                    <span class="text-xs font-medium tracking-[0.3em] text-gray-400 uppercase">What Our Clients Say</span>
+                    <div class="h-[1px] w-12 bg-white/50"></div>
+                </div>
+                <h2 class="text-4xl md:text-5xl font-black text-white mb-4">CUSTOMER REVIEWS</h2>
+            </div>
+
+            <!-- Feedback Display Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
+                <?php if ($feedbacks && $feedbacks->num_rows > 0): ?>
+                    <?php while($feedback = $feedbacks->fetch_assoc()): ?>
+                        <div class="bg-[#0a0a0a] border border-white/10 p-6 hover:border-white/30 transition group">
+                            <!-- Rating Stars -->
+                            <div class="flex gap-1 mb-4">
+                                <?php for($i = 1; $i <= 5; $i++): ?>
+                                    <i data-lucide="star" class="w-4 h-4 <?php echo $i <= $feedback['rating'] ? 'fill-yellow-500 text-yellow-500' : 'text-gray-600'; ?>"></i>
+                                <?php endfor; ?>
+                            </div>
+                            
+                            <!-- Feedback Message -->
+                            <p class="text-gray-400 mb-6 leading-relaxed text-sm">"<?php echo htmlspecialchars($feedback['message']); ?>"</p>
+                            
+                            <!-- User Info -->
+                            <div class="flex items-center gap-3 pt-4 border-t border-white/5">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                                    <?php echo strtoupper(substr($feedback['user_name'], 0, 1)); ?>
+                                </div>
+                                <div>
+                                    <p class="text-white font-bold text-sm"><?php echo htmlspecialchars($feedback['user_name']); ?></p>
+                                    <p class="text-gray-600 text-xs"><?php echo date('M d, Y', strtotime($feedback['created_at'])); ?></p>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <div class="col-span-3 text-center py-12">
+                        <i data-lucide="message-circle" class="w-16 h-16 mx-auto mb-4 text-gray-700"></i>
+                        <p class="text-gray-500">No reviews yet. Be the first to share your experience!</p>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <!-- Feedback Submission Form -->
+            <div class="max-w-2xl mx-auto bg-[#0a0a0a] border border-white/10 p-8">
+                <h3 class="text-2xl font-black text-white mb-6 text-center">SHARE YOUR EXPERIENCE</h3>
+                
+                <?php if(isset($_SESSION['user_id'])): ?>
+                    <form method="POST" class="space-y-6">
+                        <!-- Rating Selection -->
+                        <div>
+                            <label class="block text-white font-bold mb-3 text-sm uppercase tracking-wider">Rating</label>
+                            <div class="flex gap-2">
+                                <?php for($i = 1; $i <= 5; $i++): ?>
+                                    <label class="cursor-pointer group">
+                                        <input type="radio" name="rating" value="<?php echo $i; ?>" class="hidden peer" <?php echo $i === 5 ? 'checked' : ''; ?>>
+                                        <i data-lucide="star" class="w-8 h-8 text-gray-600 peer-checked:fill-yellow-500 peer-checked:text-yellow-500 hover:text-yellow-400 transition"></i>
+                                    </label>
+                                <?php endfor; ?>
+                            </div>
+                        </div>
+
+                        <!-- Message -->
+                        <div>
+                            <label class="block text-white font-bold mb-3 text-sm uppercase tracking-wider">Your Review</label>
+                            <textarea name="message" rows="5" required placeholder="Share your experience with Hansi Travels..." class="w-full bg-transparent border border-white/20 p-4 text-white text-sm focus:border-white focus:outline-none transition placeholder-gray-600 resize-none"></textarea>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="text-center">
+                            <button type="submit" name="submit_feedback" class="bg-white text-black px-10 py-3 text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition">
+                                Submit Review
+                            </button>
+                        </div>
+                    </form>
+                <?php else: ?>
+                    <div class="text-center py-8">
+                        <i data-lucide="lock" class="w-12 h-12 mx-auto mb-4 text-gray-600"></i>
+                        <p class="text-gray-400 mb-6">Please login to share your feedback</p>
+                        <button onclick="toggleModal('authModal')" class="bg-white text-black px-8 py-3 text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition">
+                            Login / Register
+                        </button>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
